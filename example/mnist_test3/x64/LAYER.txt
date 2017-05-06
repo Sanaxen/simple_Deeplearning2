@@ -1,0 +1,9 @@
+LAYER 4
+1 [28, 28]
+LAYER_TYPE_Convolutional
+5 [28, 28]->(5, 5)->[28, 28] st 1 ReLU
+LAYER_TYPE_maxPooling
+5 [28, 28]->(4, 4)->[7, 7] st 4 Identity
+LAYER_TYPE_FullyConnected
+1 [7, 7]->[1, 10] Softmax
+END
