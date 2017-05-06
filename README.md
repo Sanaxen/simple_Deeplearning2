@@ -36,8 +36,8 @@ Train-labels.idx1-ubyte
 (Example) t10k-images-idx3-ubyte -> t10k-images.idx3-ubyte
 
 Move these 4 files to the **dataset\mnist** folder Create the following directory under **dataset\mnist**  
-**Train**   
-**Test**
+**train**   
+**test**
 
 **STEP 3**
 ----------------
