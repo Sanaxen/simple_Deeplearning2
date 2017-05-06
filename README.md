@@ -11,7 +11,7 @@ It is better to use <https://github.com/Sanaxen/Deeplearning> because quality is
 **STEP 1**
 ----------------
 Installing Visual Studio 2012 Update 4 Visual C ++ Redistributable Package  
-us <https://www.microsoft.com/en-us/download/details.aspx?id=30679> 
+us <https://www.microsoft.com/en-us/download/details.aspx?id=30679>   
 jp <https://www.microsoft.com/ja-jp/download/details.aspx?id=30679>
 
 **STEP 2**
