@@ -224,7 +224,7 @@ inline int get_image_and_label( char* imageFile, tensor& image)
 	delete[] whitening_img;
 	delete img;
 
-	return 0;
+	return filename_to_label(imageFile);
 }
 
 
