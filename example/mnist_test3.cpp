@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 	set_layers_dn(net, layer);
 
 
-	//SaveLayer_dn(layer);
+	SaveLayer_dn(layer);
 
 	//‚Ü‚¾ŠwK‚ªI‚í‚Á‚Ä‚¢‚È‚¢‚©H
 	if (!PathFileExistsA("Learned.dat_layer_0"))
