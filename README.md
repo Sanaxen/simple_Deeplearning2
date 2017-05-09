@@ -8,6 +8,9 @@ note
 It is better to use <https://github.com/Sanaxen/Deeplearning> because quality is still bad.  
 * The quality of <https://github.com/Sanaxen/Deeplearning> is higher
 
+**Procedure for running example**
+-------------------------------
+
 **STEP 1**
 ----------------
 Installing Visual Studio 2012 Update 4 Visual C ++ Redistributable Package  
