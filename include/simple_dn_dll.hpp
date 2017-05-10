@@ -1,4 +1,25 @@
+/*
+MIT License
 
+Copyright (c) 2017 Sanaxen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*/
 #ifndef _SIMPLE_DN_DLL_HPP
 
 #define _SIMPLE_DN_DLL_HPP
@@ -27,131 +48,131 @@ extern "C"
 typedef void* tensor_p;
 
 /*
-	ニューラルネットワークの生成
-	ニューラルネットワークオブジェクトへのポインターを返す
+	Generation of neural network
+	Returns a pointer to a neural network object
 */
 typedef void*(WINAPI *dn_CreateNET)();
 
 /*
-	ニューラルネットワークの削除
+	Delete neural network
 */
 typedef void(WINAPI *dn_DeleteNET)(void* net_p);
 
 
 /*
-	ニューラルネットワークのハイパーパラメータ設定
-	net_p = ニューラルネットワークオブジェクトへのポインター
-	eps = 学習率(正の値）set_learning_rateで設定しなければ 0.001
+	Hyper parameter setting of neural network
+	Net_p = Pointer to neural network object
+	Eps = learning rate (positive value) 0.001 if you do not set it with set_learning_rate
 */
 typedef void(WINAPI *dn_set_learning_rate)(const double eps, void* net_p);
 
 
 
 /*
-	ニューラルネットワークのハイパーパラメータ設定
-	net_p = ニューラルネットワークオブジェクトへのポインター
-	lambda = 荷重減衰(0以上の値）set_learning_lambdaで設定しなければ 0.0
+	Hyper parameter setting of neural network
+	Net_p = Pointer to neural network object
+	Lambda = load attenuation (value greater than or equal to 0) 0.0 if set_learning_lambda is not used
 */
 typedef void(WINAPI *dn_set_learning_lambda)(const double lambda, void* net_p);
 
 
 
 /*
-	ニューラルネットワークのハイパーパラメータ設定
-	net_p = ニューラルネットワークオブジェクトへのポインター
-	batchsize = ミニバッチサイズ(1以上の値）set_learning_batchsizeで設定しなければならない。
+	Hyper parameter setting of neural network
+	Net_p = Pointer to neural network object
+	Batchsize = Mini batch size (1 or more value) Must be set with set_learning_batchsize.
 */
 typedef void(WINAPI *dn_set_learning_batchsize)(const int batchsize, void* net_p);
 
 
 
 /*
-	ニューラルネットワークのハイパーパラメータ設定
-	net_p = ニューラルネットワークオブジェクトへのポインター
-	epoch = EPOCH数(1以上の値）set_learning_epochで設定しなければならない。
-	※学習データを１順する時を1EPOCH
+	Hyper parameter setting of neural network
+	Net_p = Pointer to neural network object
+	Epoch = EPOCH number (value of 1 or more) Must be set with set_learning_epoch.
+	※Learning data 1 When going around 1 EPOCH
 */
 typedef void(WINAPI *dn_set_learning_epoch)(const int epoch, void* net_p);
 
 
 
 /*
-	ニューラルネットワークの保存
-	net_p = ニューラルネットワークオブジェクトへのポインター
-	"NET.txt"　で保存される
+	Preservation of neural network
+	Net_p = Pointer to neural network object
+	Saved with "NET.txt"
 */
 typedef void(WINAPI *dn_SaveNet)(void* net_p);
 
 
 
 /*
-	ニューラルネットワークの読み込み
-	net_p = ニューラルネットワークオブジェクトへのポインター
-	"NET.txt"　から読み込まれる
+	Load neural network
+	Net_p = Pointer to neural network object
+	Read from "NET.txt"
 */
 typedef void(WINAPI *dn_LoadNet)(void* net_p);
 
 
 
 /*
-	レイヤーの読み込み
-	レイヤーオブジェクトへのポインターを返す
-	"LAYER.txt"　から読み込まれる
+	Load layer
+	Return a pointer to a layer object
+	Read from "LAYER.txt"
 */
 typedef void*(WINAPI *dn_LoadLayer)();
 
 
 
 /*
-	ニューラルネットワークの構築
-	net_p = ニューラルネットワークオブジェクトへのポインター
-	layer_p = レイヤーオブジェクトへのポインター
+	Construction of neural network
+	Net_p = Pointer to neural network object
+	Layer_p = Pointer to layer object
 */
 typedef void(WINAPI *dn_set_layers)( void* net_p, void* layer_p);
 
 
 
 /*
-	レイヤーの保存
-	layer_p = レイヤーオブジェクトへのポインター
-	"LAYER.txt"　に保存される
+	Save layer
+	Layer_p = Pointer to layer object
+	It is stored in "LAYER.txt"
 */
 typedef void(WINAPI *dn_SaveLayer)(void* layer_p);
 
 
 
 /*
-	レイヤーのウェイト保存
-	net_p = ニューラルネットワークオブジェクトへのポインター
-	"Learned.dat_layer_#"　に保存される
+	Save layer weight
+	Net_p = Pointer to neural network object
+	It is stored in "Learned.dat_layer _ #"
 */
 typedef void(WINAPI *dn_save_weight)(void* net_p);
 
 
 
 /*
-	レイヤーのウェイトの読み込み
-	net_p = ニューラルネットワークオブジェクトへのポインター
-	"Learned.dat_layer_#"　から読み込まれる
+	Read weight of layer
+	Net_p = Pointer to neural network object
+	Read from "Learned.dat_layer_ #"
 */
 typedef void(WINAPI *dn_load_weight)(void* net_p);
 
 
 
 /*
-	深層学習
-	X = 入力データ集
-	Y = 出力データ集
-	net_p = ニューラルネットワークオブジェクトへのポインター
+	Deep learning
+	X = input data collection
+	Y = output data collection
+	Net_p = Pointer to neural network object
 */
 typedef void(WINAPI *dn_learning)(void* net_p, tensor& X, tensor& Y, int iter);
 
 
 
 /*
-	深層学習の結果による予測
-	X = 入力データ集
-	net_p = ニューラルネットワークオブジェクトへのポインター
+	Prediction based on the result of deep learning
+	X = input data collection
+	Net_p = Pointer to neural network object
 */
 typedef tensor(WINAPI *dn_predict)(void* net_p, tensor& X);
 
@@ -179,19 +200,18 @@ DNN_DEF_FUNC(predict);
 
 inline int simple_dnn_init(const char* this_dll)
 {
- // DLLのロード
   __hModule = LoadLibraryA(this_dll);
   if (__hModule == NULL)
   {
-    printf("%s", "DLLのロードに失敗しました。");
+    printf("%s", "Failed to load DLL.。");
     return -1;
   }
 
-  //// 関数のアドレス取得
+  //// Obtain address of function
   //dn_CreateNET CreateNET = (dn_CreateNET)GetProcAddress(__hModule, "CreateNET");
   //if (CreateNET == NULL)
   //{
-  //  printf("%s", "関数のアドレス取得に失敗しました。");
+  //  printf("%s", "Failed to get address of function.");
   //  FreeLibrary(__hModule);
   //  return 0;
   //}
