@@ -73,11 +73,42 @@ inline void gpuInfo(const char* acceleratorInfo)
 inline void copy_array(const double* v, const int size, std::vector<float>& va)
 {
 	va.resize(size);
+#if	0
 	for ( int i = 0; i < size; ++i )
+	{
+		va[i] = static_cast<float>(v[i]);
+	}
+#else
+	float* va_p = &va[0];
+	int i = 0;
+	for ( i = 0; i < size - 16; i += 16)
+	{
+		va_p[i] = static_cast<float>(v[i]);
+		va_p[i + 1] = static_cast<float>(v[i + 1]);
+		va_p[i + 2] = static_cast<float>(v[i + 2]);
+		va_p[i + 3] = static_cast<float>(v[i + 3]);
+		va_p[i + 4] = static_cast<float>(v[i + 4]);
+		va_p[i + 5] = static_cast<float>(v[i + 5]);
+		va_p[i + 6] = static_cast<float>(v[i + 6]);
+		va_p[i + 7] = static_cast<float>(v[i + 7]);
+		va_p[i + 8] = static_cast<float>(v[i + 8]);
+		va_p[i + 9] = static_cast<float>(v[i + 9]);
+		va_p[i + 10] = static_cast<float>(v[i + 10]);
+		va_p[i + 11] = static_cast<float>(v[i + 11]);
+		va_p[i + 12] = static_cast<float>(v[i + 12]);
+		va_p[i + 13] = static_cast<float>(v[i + 13]);
+		va_p[i + 14] = static_cast<float>(v[i + 14]);
+		va_p[i + 15] = static_cast<float>(v[i + 15]);
+	}
+	for (; i < size; ++i)
 	{
 		va[i] = v[i];
 	}
+#endif
 }
+
+
+#if 0
 inline void copy_array(const float* v, const int size, std::vector<float>& va)
 {
 	va.resize(size);
@@ -86,4 +117,5 @@ inline void copy_array(const float* v, const int size, std::vector<float>& va)
 		va[i] = v[i];
 	}
 }
+#endif
 #endif
