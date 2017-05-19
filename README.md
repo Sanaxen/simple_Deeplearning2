@@ -7,6 +7,10 @@ note  
 **Optimizer**    
 Adam,  new -> AdaGrad,RMSProp,AdaDelta  
 
+** Initial Weight**  
+he : for relu  
+xavier : for tanh, sigmoid... 
+
 note  
 -------------------------------------------
 It is better to use <https://github.com/Sanaxen/Deeplearning> because quality is still bad.  
