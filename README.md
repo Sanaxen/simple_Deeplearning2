@@ -7,7 +7,7 @@ note  
 **Optimizer**    
 Adam,  new -> AdaGrad,RMSProp,AdaDelta  
 
-** Initial Weight**  
+**Initial Weight**  
 he : for relu  
 xavier : for tanh, sigmoid... 
 
