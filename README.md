@@ -1,9 +1,13 @@
 #
-Sample Software Development Kit(SDK) for easy trial of Deeplearning  
+Simple Software Development Kit(SDK) for easy trial of Deeplearning  
 For personal use
 -------------------------------------------
+note  
+-------------------------------------------
+**Optimizer**    
+Adam,  new -> AdaGrad,RMSProp,AdaDelta  
 
-note  
+note  
 -------------------------------------------
 It is better to use <https://github.com/Sanaxen/Deeplearning> because quality is still bad.  
 * The quality of <https://github.com/Sanaxen/Deeplearning> is higher
