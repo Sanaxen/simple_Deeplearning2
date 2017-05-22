@@ -1,5 +1,6 @@
 //#define USE_GPU	10
 //#include "../include/gpu/cpp_amp.hpp"
+#define NOMINMAX
 
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
@@ -51,18 +52,18 @@ int main(int argc, char** argv)
 	SaveLayer_dn(layer);
 
 	//‚Ü‚¾ŠwK‚ªI‚í‚Á‚Ä‚¢‚È‚¢‚©H
-	if (!PathFileExistsA("Learned.dat_layer_0"))
+	if (!PathFileExistsA("mnist.model"))
 	{
 		//ŠwK
 		learning_dn(net, im, label, -1);
 		fprintf(stderr, "===== learning END =====\n"); fflush(stderr);
 		
 		//ŠwKŒ‹‰Ê‚ğ•Û‘¶
-		save_weight_dn(net);
+		save_weight_dn(net, std::string("mnist.model"));
 	}else
 	{
 		//ŠwKŒ‹‰Ê‚ğ“Ç‚İ‚Ş
-		load_weight_dn(net);
+		load_weight_dn(net, std::string("mnist.model"));
 		fprintf(stderr, "===== Read learned data =====\n");
 
 		if (argc == 3)

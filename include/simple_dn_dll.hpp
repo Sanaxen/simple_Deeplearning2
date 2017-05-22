@@ -25,6 +25,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #define _SIMPLE_DN_DLL_HPP
 
 #include <vector>
+#define NOMINMAX
+
 #include <Windows.h>
 
 #include <iostream>
@@ -144,18 +146,18 @@ typedef void(WINAPI *dn_SaveLayer)(void* layer_p);
 /*
 	Save layer weight
 	Net_p = Pointer to neural network object
-	It is stored in "Learned.dat_layer _ #"
+	It is stored in filename
 */
-typedef void(WINAPI *dn_save_weight)(void* net_p);
+typedef void(WINAPI *dn_save_weight)(void* net_p, std::string& filename);
 
 
 
 /*
 	Read weight of layer
 	Net_p = Pointer to neural network object
-	Read from "Learned.dat_layer_ #"
+	Read from filename
 */
-typedef void(WINAPI *dn_load_weight)(void* net_p);
+typedef void(WINAPI *dn_load_weight)(void* net_p, std::string& filename);
 
 
 

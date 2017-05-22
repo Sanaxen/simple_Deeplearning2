@@ -1,4 +1,4 @@
 copy ..\..\..\bin\*.dll .\\Release
 
-del Learned*.*
+del mnist.model
 .\Release\mnist_test3.exe ..\..\..\dataset\mnist

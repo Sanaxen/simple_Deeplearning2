@@ -149,7 +149,7 @@ inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label)
 		}
 	}
 	char file[256];
-	if (!PathFileExistsA("Learned.dat_layer_0"))
+	if (!PathFileExistsA("mnist.model"))
 	{
 
 		FILE* fp = fopen((dataDir+ "\\train_files.txt").c_str(), "r");

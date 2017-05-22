@@ -1,11 +1,15 @@
 #ifndef __IMAGE_HPP
 
-#undef __IMAGE_HPP
+#define __IMAGE_HPP
+
+#define NOMINMAX
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../stb/stb_image.h"
 #include "../stb/stb_image_write.h"
+
+#pragma warning(disable : 4244)
 
 using namespace std;
 
@@ -67,10 +71,10 @@ public:
 inline Image* readImage(char *filename)
 {
 	int i, j;
-	int real_width;
-	unsigned int width, height;
-	unsigned int color;
-	FILE *fp;
+	//int real_width;
+	//unsigned int width, height;
+	//unsigned int color;
+	//FILE *fp;
 	unsigned char *bmp_line_data;
 	Image *img;
 
@@ -132,7 +136,7 @@ inline Image* readImage(char *filename)
 	return img;
 }
 
-inline double* image_whitening(Image* img)
+inline double* image_whitening(Image* img, double eps = 0.0)
 {
 	double av = 0.0;
 	const int sz = img->height*img->width;
@@ -158,7 +162,7 @@ inline double* image_whitening(Image* img)
 		sd += pow(data[3*k+1] - av, 2.0);
 		sd += pow(data[3*k+2] - av, 2.0);
 	}
-	sd = sqrt(sd / (double)(3 * sz));
+	sd = sqrt(sd / (double)(3 * sz)) + eps;
 	//if ( fabs(sd) < 1.0e-16 ) return;
 
 #pragma omp parallel for
@@ -171,6 +175,348 @@ inline double* image_whitening(Image* img)
 
 	return data;
 }
+
+class img_greyscale
+{
+public:
+	void greyscale(Image* img)
+	{
+		for (int i = 0; i < img->height*img->width; i++)
+		{
+			double c = (0.299 * img->data[i].r + 0.587 * img->data[i].g + 0.114 * img->data[i].b);
+			img->data[i].r = c;
+			img->data[i].g = c;
+			img->data[i].b = c;
+		}
+	}
+	void greyscale(double* data, int x, int y)
+	{
+		for (int i = 0; i < x*y; i++)
+		{
+			double c = (0.299 * data[3 * i + 0] + 0.587 * data[3 * i + 1] + 0.114 * data[3 * i + 2]);
+			data[3 * i + 0] = c;
+			data[3 * i + 1] = c;
+			data[3 * i + 2] = c;
+		}
+	}
+	void greyscale(unsigned char* data, int x, int y)
+	{
+		for (int i = 0; i < x*y; i++)
+		{
+			double c = (0.299 * data[3 * i + 0] + 0.587 * data[3 * i + 1] + 0.114 * data[3 * i + 2]);
+			data[3 * i + 0] = c;
+			data[3 * i + 1] = c;
+			data[3 * i + 2] = c;
+		}
+	}
+
+};
+class img_gamma
+{
+	double gamma_;
+public:
+	img_gamma(double gamma)
+	{
+		gamma_ = gamma;
+	}
+	void gamma(Image* img)
+	{
+		for (int i = 0; i < img->height*img->width; i++)
+		{
+			img->data[i].r = 255 * pow(img->data[i].r / 255.0, 1.0 / gamma_);
+			img->data[i].g = 255 * pow(img->data[i].g / 255.0, 1.0 / gamma_);
+			img->data[i].b = 255 * pow(img->data[i].b / 255.0, 1.0 / gamma_);
+		}
+	}
+	void gamma(double* data, int x, int y)
+	{
+		for (int i = 0; i < x*y; i++)
+		{
+			data[3 * i + 0] = 255 * pow(data[3 * i + 0] / 255.0, 1.0 / gamma_);
+			data[3 * i + 1] = 255 * pow(data[3 * i + 1] / 255.0, 1.0 / gamma_);
+			data[3 * i + 2] = 255 * pow(data[3 * i + 2] / 255.0, 1.0 / gamma_);
+		}
+	}
+	void gamma(unsigned char* data, int x, int y)
+	{
+		for (int i = 0; i < x*y; i++)
+		{
+			data[3 * i + 0] = 255 * pow(data[3 * i + 0] / 255.0, 1.0 / gamma_);
+			data[3 * i + 1] = 255 * pow(data[3 * i + 1] / 255.0, 1.0 / gamma_);
+			data[3 * i + 2] = 255 * pow(data[3 * i + 2] / 255.0, 1.0 / gamma_);
+		}
+	}
+};
+
+class img_contrast
+{
+	int min_table;
+	int max_table;
+	int diff_table;
+
+	float LUT_HC[255];
+	float LUT_LC[255];
+
+public:
+	img_contrast()
+	{
+		// ルックアップテーブルの生成
+		min_table = 50;
+		max_table = 205;
+		diff_table = max_table - min_table;
+
+		//ハイコントラストLUT作成
+		for (int i = 0; i < min_table; i++)	LUT_HC[i] = 0;
+		for (int i = min_table; i < max_table; i++)	LUT_HC[i] = 255.0 * (i - min_table) / (float)diff_table;
+		for (int i = max_table; i < 255; i++)	LUT_HC[i] = 255.0;
+
+		// ローコントラストLUT作成
+		for (int i = 0; i < 255; i++) LUT_LC[i] = min_table + i * (diff_table) / 255.0;
+	}
+
+	void high(Image* img)
+	{
+		for (int i = 0; i < img->height*img->width; i++) 
+		{
+			img->data[i].r = (unsigned char)(std::min(255.0f, LUT_HC[img->data[i].r] * img->data->r));
+			img->data[i].g = (unsigned char)(std::min(255.0f, LUT_HC[img->data[i].g] * img->data->r));
+			img->data[i].b = (unsigned char)(std::min(255.0f, LUT_HC[img->data[i].b] * img->data->r));
+		}
+	}
+	void high(double* data, int x, int y)
+	{
+		for (int i = 0; i < x*y; i++)
+		{
+			data[3 * i + 0] = (unsigned char)(std::min(255.0, LUT_HC[(int)std::max(0.0, std::max(255.0, data[3 * i + 0]))] * data[3 * i + 0]));
+			data[3 * i + 1] = (unsigned char)(std::min(255.0, LUT_HC[(int)std::max(0.0, std::max(255.0, data[3 * i + 1]))] * data[3 * i + 1]));
+			data[3 * i + 2] = (unsigned char)(std::min(255.0, LUT_HC[(int)std::max(0.0, std::max(255.0, data[3 * i + 2]))] * data[3 * i + 2]));
+		}
+	}
+	void high(unsigned char* data, int x, int y)
+	{
+		for (int i = 0; i < x*y; i++)
+		{
+			data[3 * i + 0] = LUT_HC[data[3 * i + 0]] * data[3 * i + 0];
+			data[3 * i + 1] = LUT_HC[data[3 * i + 1]] * data[3 * i + 1];
+			data[3 * i + 2] = LUT_HC[data[3 * i + 2]] * data[3 * i + 2];
+		}
+	}
+	void low(Image* img)
+	{
+		for (int i = 0; i < img->height*img->width; i++)
+		{
+			img->data[i].r = (unsigned char)(std::min(255.0f, LUT_LC[img->data[i].r] * img->data->r));
+			img->data[i].g = (unsigned char)(std::min(255.0f, LUT_LC[img->data[i].g] * img->data->r));
+			img->data[i].b = (unsigned char)(std::min(255.0f, LUT_LC[img->data[i].b] * img->data->r));
+		}
+	}
+	void low(double* data, int x, int y)
+	{
+		for (int i = 0; i < x*y; i++)
+		{
+			data[3 * i + 0] = (unsigned char)(std::min(255.0, LUT_LC[(int)std::max(0.0, std::min(255.0, data[3 * i + 0]))] * data[3 * i + 0]));
+			data[3 * i + 1] = (unsigned char)(std::min(255.0, LUT_LC[(int)std::max(0.0, std::min(255.0, data[3 * i + 1]))] * data[3 * i + 1]));
+			data[3 * i + 2] = (unsigned char)(std::min(255.0, LUT_LC[(int)std::max(0.0, std::min(255.0, data[3 * i + 2]))] * data[3 * i + 2]));
+		}
+	}
+	void low(unsigned char* data, int x, int y)
+	{
+		for (int i = 0; i < x*y; i++)
+		{
+			data[3 * i + 0] = LUT_LC[data[3 * i + 0]] * data[3 * i + 0];
+			data[3 * i + 1] = LUT_LC[data[3 * i + 1]] * data[3 * i + 1];
+			data[3 * i + 2] = LUT_LC[data[3 * i + 2]] * data[3 * i + 2];
+		}
+	}
+};
+
+class img_noize
+{
+	std::mt19937 mt;
+	double sigma_;
+	std::uniform_real_distribution<double> rand_a;
+	double r;
+public:
+	img_noize(double sigma = 15.0, double r_ = 0.3)
+	{
+		std::random_device seed_gen;
+		std::mt19937 engine(seed_gen());
+		mt = engine;
+		sigma_ = sigma;
+		std::uniform_real_distribution<double> rand_aa(0.0, 1.0);
+		rand_a = rand_aa;
+		r = r_;
+	}
+
+	void noize(Image* img)
+	{
+		std::uniform_real_distribution<double> d_rand(-sigma_, sigma_);
+
+		for (int i = 0; i < img->height*img->width; i++)
+		{
+			if (rand_a(mt) < r)
+			{
+				img->data[i].r = (unsigned char)(std::max(0.0, std::min(255.0, img->data[i].r + d_rand(mt))));
+				img->data[i].g = (unsigned char)(std::max(0.0, std::min(255.0, img->data[i].g + d_rand(mt))));
+				img->data[i].b = (unsigned char)(std::max(0.0, std::min(255.0, img->data[i].b + d_rand(mt))));
+			}
+		}
+	}
+	void noize(double* data, int x, int y)
+	{
+		std::uniform_real_distribution<double> d_rand(-sigma_, sigma_);
+
+		for (int i = 0; i < x*y; i++)
+		{
+			if (rand_a(mt) < r)
+			{
+				data[3 * i + 0] = (unsigned char)(std::max(0.0, std::min(255.0, data[3 * i + 0] + d_rand(mt))));
+				data[3 * i + 1] = (unsigned char)(std::max(0.0, std::min(255.0, data[3 * i + 1] + d_rand(mt))));
+				data[3 * i + 2] = (unsigned char)(std::max(0.0, std::min(255.0, data[3 * i + 2] + d_rand(mt))));
+			}
+		}
+	}
+	void noize(unsigned char* data, int x, int y)
+	{
+		std::normal_distribution<double> d_rand(0.0, sigma_);
+
+		for (int i = 0; i < x*y; i++)
+		{
+			if (rand_a(mt) < r)
+			{
+				data[3 * i + 0] = (unsigned char)(std::max(0.0, std::min(255.0, data[3 * i + 0] + d_rand(mt))));
+				data[3 * i + 1] = (unsigned char)(std::max(0.0, std::min(255.0, data[3 * i + 1] + d_rand(mt))));
+				data[3 * i + 2] = (unsigned char)(std::max(0.0, std::min(255.0, data[3 * i + 2] + d_rand(mt))));
+			}
+		}
+	}
+};
+
+class img_filter
+{
+	double weight[3][3];
+public:
+	img_filter(double* filter = NULL)
+	{
+		if (filter)
+		{
+			weight[0][0] = filter[0];
+			weight[0][1] = filter[1];
+			weight[0][2] = filter[2];
+			weight[1][0] = filter[3];
+			weight[1][1] = filter[4];
+			weight[1][2] = filter[5];
+			weight[2][0] = filter[6];
+			weight[2][1] = filter[7];
+			weight[2][2] = filter[8];
+		}
+		else
+		{
+			weight[0][0] = 1.0;
+			weight[0][1] = 1.0;
+			weight[0][2] = 1.0;
+			weight[1][0] = 1.0;
+			weight[1][1] = 1.0;
+			weight[1][2] = 1.0;
+			weight[2][0] = 1.0;
+			weight[2][1] = 1.0;
+			weight[2][2] = 1.0;
+		}
+	}
+
+	void filter(Image* img)
+	{
+		const int x = img->width;
+		const int y = img->height;
+		for ( int i = 0; i < y; i++ )
+		{
+			for ( int j = 0; j < x; j++ )
+			{
+				double r, g, b;
+				
+				r = g = b = 0.0;
+				for ( int ii = 0; ii < 3; ii++ )
+				{
+					for ( int jj = 0; jj < 3; jj++ )
+					{
+							int pos = ((i+ii)*x + (j+jj));
+							if (pos >= x*y) continue;
+							r += img[pos].data->r * weight[ii][jj];
+							g += img[pos].data->g * weight[ii][jj];
+							b += img[pos].data->b * weight[ii][jj];
+					}
+				}
+				r /= 9.0;
+				g /= 9.0;
+				b /= 9.0;
+				int pos = i*x + j;
+				img[pos].data->r = (unsigned char)std::min(255.0, r);
+				img[pos].data->g = (unsigned char)std::min(255.0, g);
+				img[pos].data->b = (unsigned char)std::min(255.0, b);
+			}
+		}
+	}
+	void filter(double* data, int x, int y)
+	{
+		for (int i = 0; i < y; i++)
+		{
+			for (int j = 0; j < x; j++)
+			{
+				double r, g, b;
+
+				r = g = b = 0.0;
+				for (int ii = 0; ii < 3; ii++)
+				{
+					for (int jj = 0; jj < 3; jj++)
+					{
+						int pos = ((i + ii)*x + (j + jj));
+						if (pos >= x*y) continue;
+						r += data[3 * pos +  0] * weight[ii][jj];
+						g += data[3 * pos +  1] * weight[ii][jj];
+						b += data[3 * pos +  2] * weight[ii][jj];
+					}
+				}
+				r /= 9.0;
+				g /= 9.0;
+				b /= 9.0;
+				int pos = (i*x + j);
+				data[3 * pos + 0] = (unsigned char)std::min(255.0, r);
+				data[3 * pos + 1] = (unsigned char)std::min(255.0, g);
+				data[3 * pos + 2] = (unsigned char)std::min(255.0, b);
+			}
+		}
+	}
+	void filter(unsigned char* data, int x, int y)
+	{
+		for (int i = 0; i < y; i++)
+		{
+			for (int j = 0; j < x; j++)
+			{
+				double r, g, b;
+
+				r = g = b = 0.0;
+				for (int ii = 0; ii < 3; ii++)
+				{
+					for (int jj = 0; jj < 3; jj++)
+					{
+						int pos = ((i + ii)*x + (j + jj));
+						if (pos >= x*y) continue;
+						r += data[3 * pos + 0] * weight[ii][jj];
+						g += data[3 * pos + 1] * weight[ii][jj];
+						b += data[3 * pos + 2] * weight[ii][jj];
+					}
+				}
+				r /= 9.0;
+				g /= 9.0;
+				b /= 9.0;
+				int pos = (i*x + j);
+				data[3 * pos + 0] = (unsigned char)std::min(255.0, r);
+				data[3 * pos + 1] = (unsigned char)std::min(255.0, g);
+				data[3 * pos + 2] = (unsigned char)std::min(255.0, b);
+			}
+		}
+	}
+};
 #undef STB_IMAGE_IMPLEMENTATION
 
 #endif
