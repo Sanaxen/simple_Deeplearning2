@@ -201,6 +201,7 @@ inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label)
 
 		fprintf(stderr, "total %d set\n", im.size());
 	}
+	return 0;
 }
 
 inline int get_image_and_label( char* imageFile, tensor& image)

@@ -1,8 +1,7 @@
 #ifndef __IMAGE_HPP
 
-#define __IMAGE_HPP
+#undef __IMAGE_HPP
 
-#define NOMINMAX
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -10,6 +9,10 @@
 #include "../stb/stb_image_write.h"
 
 #pragma warning(disable : 4244)
+
+#ifndef M_PI
+#define M_PI       3.14159265358979323846   // pi
+#endif
 
 using namespace std;
 
@@ -515,6 +518,124 @@ public:
 				data[3 * pos + 2] = (unsigned char)std::min(255.0, b);
 			}
 		}
+	}
+};
+
+
+class img_rotation
+{
+public:
+	img_rotation() {}
+
+	void rotation(Image* img, const double rad)
+	{
+		const int x = img->width;
+		const int y = img->height;
+		double centerX = x / 2.0;
+		double centerY = y / 2.0;
+		double cosRadian = cos(rad);
+		double sinRadian = sin(rad);
+
+		Rgb* data = new Rgb[x*y];
+		memcpy(data, img->data, sizeof(Rgb)*x*y);
+
+		for (int i = 0; i < y; i++)
+		{
+			for (int j = 0; j < x; j++)
+			{
+				int pos = i*x + j;
+				
+				int pointX = (int)((j - centerX) * cosRadian - (i - centerY) * sinRadian + centerX);
+				int pointY = (int)((j - centerX) * sinRadian + (i - centerY) * cosRadian + centerY);
+
+				// poiuntX, pointYが入力画像の有効範囲にあれば出力画像へ代入する
+				if (pointX >= 0 && pointX < x && pointY >= 0 && pointY < y) {
+					img->data[pos] = data[pointY * x + pointX];
+				}
+				else {
+					img->data[pos] = Rgb(0,0,0);
+				}
+			}
+		}
+		delete[] data;
+	}
+
+	void rotation(double* data, int x, int y, const double rad)
+	{
+		double centerX = x / 2.0;
+		double centerY = y / 2.0;
+		double cosRadian = cos(rad);
+		double sinRadian = sin(rad);
+
+		double* data2 = new double[x*y*3];
+		for (int i = 0; i < x*y*3; i++)
+		{
+			data2[i] = data[i];
+		}
+
+		for (int i = 0; i < y; i++)
+		{
+			for (int j = 0; j < x; j++)
+			{
+				int pos = i*x + j;
+
+				int pointX = (int)((j - centerX) * cosRadian - (i - centerY) * sinRadian + centerX);
+				int pointY = (int)((j - centerX) * sinRadian + (i - centerY) * cosRadian + centerY);
+
+				// poiuntX, pointYが入力画像の有効範囲にあれば出力画像へ代入する
+				if (pointX >= 0 && pointX < x && pointY >= 0 && pointY < y) {
+					int pos2 = pointY * x + pointX;
+					data[3 * pos + 0] = data2[3 * pos2 + 0];
+					data[3 * pos + 1] = data2[3 * pos2 + 1];
+					data[3 * pos + 2] = data2[3 * pos2 + 2];
+				}
+				else {
+					data[3 * pos + 0] = 0;
+					data[3 * pos + 1] = 0;
+					data[3 * pos + 2] = 0;
+				}
+			}
+		}
+		delete[] data2;
+	}
+
+	void rotation(unsigned char* data, int x, int y, const double rad)
+	{
+		double centerX = x / 2.0;
+		double centerY = y / 2.0;
+		double cosRadian = cos(rad);
+		double sinRadian = sin(rad);
+
+		double* data2 = new double[x*y * 3];
+		for (int i = 0; i < x*y * 3; i++)
+		{
+			data2[i] = (double)data[i];
+		}
+
+		for (int i = 0; i < y; i++)
+		{
+			for (int j = 0; j < x; j++)
+			{
+				int pos = i*x + j;
+
+				int pointX = (int)((j - centerX) * cosRadian - (i - centerY) * sinRadian + centerX);
+				int pointY = (int)((j - centerX) * sinRadian + (i - centerY) * cosRadian + centerY);
+
+				// poiuntX, pointYが入力画像の有効範囲にあれば出力画像へ代入する
+				if (pointX >= 0 && pointX < x && pointY >= 0 && pointY < y) {
+					int pos2 = pointY * x + pointX;
+					data[3 * pos + 0] = (unsigned char)std::min(255.0, std::max(0.0, data2[3 * pos2 + 0]));
+					data[3 * pos + 1] = (unsigned char)std::min(255.0, std::max(0.0, data2[3 * pos2 + 1]));
+					data[3 * pos + 2] = (unsigned char)std::min(255.0, std::max(0.0, data2[3 * pos2 + 2]));
+				}
+				else {
+					data[3 * pos + 0] = 0;
+					data[3 * pos + 1] = 0;
+					data[3 * pos + 2] = 0;
+				}
+			}
+		}
+		delete[] data2;
 	}
 };
 #undef STB_IMAGE_IMPLEMENTATION
