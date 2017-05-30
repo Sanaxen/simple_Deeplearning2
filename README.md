@@ -5,11 +5,14 @@ For personal use
 note  
 -------------------------------------------
 **real time Plotting**  
+
 <img src="https://github.com/Sanaxen/simple_Deeplearning2/blob/master/image/plot.png"/>  
 
 **Optimizer**    
 
-Adam,  new -> AdaGrad,RMSProp,AdaDelta  
+default Adam  
+2017/5/24 AdaGrad,RMSProp,AdaDelta  
+2017/5/30 SGD  
 
 **Initial Weight**  
 
