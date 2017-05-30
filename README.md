@@ -4,7 +4,10 @@ For personal use
 -------------------------------------------
 note  
 -------------------------------------------
-**Optimizer**    
+**real time Plotting**  
+<img src="https://github.com/Sanaxen/simple_Deeplearning2/blob/master/image/plot.png"/>  
+
+**Optimizer**    
 
 Adam,  new -> AdaGrad,RMSProp,AdaDelta  
 
