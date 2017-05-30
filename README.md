@@ -11,7 +11,7 @@ note  
 **Optimizer**    
 
 default Adam  
-2017/5/24 AdaGrad,RMSProp,AdaDelta  
+2017/5/24 AdaGrad,RMSProp,AdaDelta  
 2017/5/30 SGD  
 
 **Initial Weight**  
