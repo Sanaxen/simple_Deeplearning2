@@ -35,8 +35,11 @@ int main(int argc, char** argv)
 	tensor im;		//トレーニング画像
 	tensor label;	//ラベル
 
+	tensor test_im;		//Test画像
+	tensor test_label;	//Testラベル
+
 	//トレーニング画像・ラベルを読み込む
-	image_to_tensor(dataDir, im, label);
+	image_to_tensor(dataDir, im, label, test_im, test_label);
 
 	//ネットワークの生成
 	void* net = CreateNET_dn();
@@ -50,10 +53,13 @@ int main(int argc, char** argv)
 
 
 	SaveLayer_dn(layer);
+	SaveNet_dn(net);
 
 	//まだ学習が終わっていないか？
 	if (!PathFileExistsA("mnist.model"))
 	{
+		set_test_data_dn(net, test_im, test_label);
+
 		//学習
 		learning_dn(net, im, label, -1);
 		fprintf(stderr, "===== learning END =====\n"); fflush(stderr);

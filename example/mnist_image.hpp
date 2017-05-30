@@ -132,7 +132,7 @@ inline int filename_to_label(char* filename)
 }
 
 
-inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label)
+inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label, tensor& test_im, tensor& test_label)
 {
 	const int M = 6000;
 	const int N = 1000;
@@ -200,6 +200,58 @@ inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label)
 		fclose(fp);
 
 		fprintf(stderr, "total %d set\n", im.size());
+	}
+
+	{
+
+		FILE* fp = fopen((dataDir+ "\\test_files.txt").c_str(), "r");
+		if (!fp) return -1;
+
+		for (int i = 0; i < N; ++i)
+		{
+			fprintf(stderr, "%d/%d           \r", (i + 1), N );
+			if (!fgets(file, 256, fp))
+			{
+				break;
+			}
+			file[strlen(file) - 1] = '\0';
+
+			Image* img = readImage(file);
+
+			vector<vector<double>> tmp(1, vector<double>(img->height*img->width));
+			vector<vector<double>> tmp_lb(1, vector<double>(10, 0));
+
+			if ( Normalization )
+			{
+				int sz = img->height*img->width;
+				double* whitening_img = image_whitening(img);
+#pragma omp parallel for
+				for (int k = 0; k < sz; k++)
+				{
+					tmp[0][k] = whitening_img[3*k+0];
+				}
+				delete [] whitening_img;
+			}else
+			{
+				int sz = img->height*img->width;
+#pragma omp parallel for
+				for (int k = 0; k < sz; k++)
+				{
+					tmp[0][k] = (double)img->data[k].r/255.0;
+				}
+			}
+
+			int lb = filename_to_label(file);
+			if ( lb >= 0 && lb < 10 ) tmp_lb[0][lb] = 1.0;
+
+			test_im.push_back(tmp);
+			test_label.push_back(tmp_lb);
+
+			delete img;
+		}
+		fclose(fp);
+
+		fprintf(stderr, "test total %d set\n", test_im.size());
 	}
 	return 0;
 }

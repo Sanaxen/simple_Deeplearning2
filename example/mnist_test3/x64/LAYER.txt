@@ -7,4 +7,7 @@ LAYER_TYPE_maxPooling/layer_002
 LAYER_TYPE_FullyConnected/layer_003
 1 [7, 7]->[1, 10] Softmax
 
+INIT_SCALE/layer_001 1.000000
+INIT_SCALE/layer_002 1.000000
+INIT_SCALE/layer_003 1.000000
 END

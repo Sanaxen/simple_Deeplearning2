@@ -124,6 +124,15 @@ typedef void(WINAPI *dn_LoadNet)(void* net_p);
 typedef void*(WINAPI *dn_LoadLayer)();
 
 
+/*
+	Setting Test Data of Neural Network
+	Net_p = Pointer to neural network object
+	X = test data
+	Y = test data label
+	Read from "NET.txt"
+*/
+typedef void(WINAPI *dn_set_test_data)(void* net_p, tensor& X, tensor& Y);
+
 
 /*
 	Construction of neural network
@@ -179,6 +188,12 @@ typedef void(WINAPI *dn_learning)(void* net_p, tensor& X, tensor& Y, int iter);
 typedef tensor(WINAPI *dn_predict)(void* net_p, tensor& X);
 
 
+/*
+	Specification of multi-core calculation mode using thread
+	thread_num = threads number
+	Net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_enable_threads_mode)(void* net_p, int thread_num);
 
 #define DNN_DEF_FUNC(f)	dn_ ## f f ## _dn = NULL;
 #define DNN_FUNC(f)	f ## _dn = (dn_ ## f)GetProcAddress(__hModule, # f);if ( f ## _dn == NULL ) printf("load %s error.\n", #f);
@@ -199,6 +214,8 @@ DNN_DEF_FUNC(save_weight);
 DNN_DEF_FUNC(load_weight);
 DNN_DEF_FUNC(learning);
 DNN_DEF_FUNC(predict);
+DNN_DEF_FUNC(enable_threads_mode);
+DNN_DEF_FUNC(set_test_data);
 
 inline int simple_dnn_init(const char* this_dll)
 {
@@ -233,6 +250,8 @@ inline int simple_dnn_init(const char* this_dll)
   DNN_FUNC(load_weight);
   DNN_FUNC(learning);
   DNN_FUNC(predict);
+  DNN_FUNC(enable_threads_mode);
+  DNN_FUNC(set_test_data);
   return 0;
 }
 inline void simple_dnn_term()
