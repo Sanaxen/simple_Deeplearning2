@@ -9,6 +9,7 @@
 #include "../stb/stb_image_write.h"
 
 #pragma warning(disable : 4244)
+#pragma warning(disable : 4018)
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846   // pi
@@ -71,6 +72,50 @@ public:
 	}
 };
 
+template<class T>
+inline Image* ToImage(T* data, int x, int y)
+{
+	Image *img = 0;
+
+	img = new Image;
+	img->data = new Rgb[x*y];
+	memset(img->data, '\0', sizeof(Rgb)*x*y);
+	img->height = y;
+	img->width = x;
+
+	for (int i = 0; i < y; i++)
+	{
+		for (int j = 0; j < x; j++)
+		{
+			int pos = i*x + j;
+
+			img->data[pos].r = data[3 * pos + 0];
+			img->data[pos].g = data[3 * pos + 1];
+			img->data[pos].b = data[3 * pos + 2];
+		}
+	}
+	return img;
+}
+
+template<class T>
+inline T* ImageTo(Image* img)
+{
+	T* data = new T[img->width*img->height * 3];
+
+	for (int i = 0; i < img->height; i++)
+	{
+		for (int j = 0; j < img->width; j++)
+		{
+			int pos = (i*img->width + j);
+
+			data[3 * pos + 0] = img->data[pos].r;
+			data[3 * pos + 1] = img->data[pos].g;
+			data[3 * pos + 2] = img->data[pos].b;
+		}
+	}
+	return data;
+}
+
 inline Image* readImage(char *filename)
 {
 	int i, j;
@@ -78,7 +123,7 @@ inline Image* readImage(char *filename)
 	//unsigned int width, height;
 	//unsigned int color;
 	//FILE *fp;
-	unsigned char *bmp_line_data;
+	//unsigned char *bmp_line_data;
 	Image *img;
 
 	unsigned char *data = 0;
@@ -461,63 +506,29 @@ public:
 	}
 	void filter(double* data, int x, int y)
 	{
-		for (int i = 0; i < y; i++)
-		{
-			for (int j = 0; j < x; j++)
-			{
-				double r, g, b;
+		Image* img = ToImage(data, x, y);
+		filter(img);
 
-				r = g = b = 0.0;
-				for (int ii = 0; ii < 3; ii++)
-				{
-					for (int jj = 0; jj < 3; jj++)
-					{
-						int pos = ((i + ii)*x + (j + jj));
-						if (pos >= x*y) continue;
-						r += data[3 * pos +  0] * weight[ii][jj];
-						g += data[3 * pos +  1] * weight[ii][jj];
-						b += data[3 * pos +  2] * weight[ii][jj];
-					}
-				}
-				r /= 9.0;
-				g /= 9.0;
-				b /= 9.0;
-				int pos = (i*x + j);
-				data[3 * pos + 0] = (unsigned char)std::min(255.0, r);
-				data[3 * pos + 1] = (unsigned char)std::min(255.0, g);
-				data[3 * pos + 2] = (unsigned char)std::min(255.0, b);
-			}
+		double* data2 = ImageTo<double>(img);
+		for (int i = 0; i < x*y * 3; i++)
+		{
+			data[i] = data2[i];
 		}
+		delete[] data2;
+		delete img;
 	}
 	void filter(unsigned char* data, int x, int y)
 	{
-		for (int i = 0; i < y; i++)
-		{
-			for (int j = 0; j < x; j++)
-			{
-				double r, g, b;
+		Image* img = ToImage(data, x, y);
+		filter(img);
 
-				r = g = b = 0.0;
-				for (int ii = 0; ii < 3; ii++)
-				{
-					for (int jj = 0; jj < 3; jj++)
-					{
-						int pos = ((i + ii)*x + (j + jj));
-						if (pos >= x*y) continue;
-						r += data[3 * pos + 0] * weight[ii][jj];
-						g += data[3 * pos + 1] * weight[ii][jj];
-						b += data[3 * pos + 2] * weight[ii][jj];
-					}
-				}
-				r /= 9.0;
-				g /= 9.0;
-				b /= 9.0;
-				int pos = (i*x + j);
-				data[3 * pos + 0] = (unsigned char)std::min(255.0, r);
-				data[3 * pos + 1] = (unsigned char)std::min(255.0, g);
-				data[3 * pos + 2] = (unsigned char)std::min(255.0, b);
-			}
+		unsigned char* data2 = ImageTo<unsigned char>(img);
+		for (int i = 0; i < x*y * 3; i++)
+		{
+			data[i] = data2[i];
 		}
+		delete[] data2;
+		delete img;
 	}
 };
 
@@ -562,82 +573,298 @@ public:
 
 	void rotation(double* data, int x, int y, const double rad)
 	{
-		double centerX = x / 2.0;
-		double centerY = y / 2.0;
-		double cosRadian = cos(rad);
-		double sinRadian = sin(rad);
+		Image* img = ToImage(data, x, y);
+		rotation(img, rad);
 
-		double* data2 = new double[x*y*3];
+		double* data2 = ImageTo<double>(img);
 		for (int i = 0; i < x*y*3; i++)
 		{
-			data2[i] = data[i];
+			data[i] = data2[i];
 		}
-
-		for (int i = 0; i < y; i++)
-		{
-			for (int j = 0; j < x; j++)
-			{
-				int pos = i*x + j;
-
-				int pointX = (int)((j - centerX) * cosRadian - (i - centerY) * sinRadian + centerX);
-				int pointY = (int)((j - centerX) * sinRadian + (i - centerY) * cosRadian + centerY);
-
-				// poiuntX, pointYが入力画像の有効範囲にあれば出力画像へ代入する
-				if (pointX >= 0 && pointX < x && pointY >= 0 && pointY < y) {
-					int pos2 = pointY * x + pointX;
-					data[3 * pos + 0] = data2[3 * pos2 + 0];
-					data[3 * pos + 1] = data2[3 * pos2 + 1];
-					data[3 * pos + 2] = data2[3 * pos2 + 2];
-				}
-				else {
-					data[3 * pos + 0] = 0;
-					data[3 * pos + 1] = 0;
-					data[3 * pos + 2] = 0;
-				}
-			}
-		}
+		delete img;
 		delete[] data2;
 	}
 
 	void rotation(unsigned char* data, int x, int y, const double rad)
 	{
-		double centerX = x / 2.0;
-		double centerY = y / 2.0;
-		double cosRadian = cos(rad);
-		double sinRadian = sin(rad);
+		Image* img = ToImage(data, x, y);
+		rotation(img, rad);
 
-		double* data2 = new double[x*y * 3];
+		unsigned char* data2 = ImageTo<unsigned char>(img);
 		for (int i = 0; i < x*y * 3; i++)
 		{
-			data2[i] = (double)data[i];
+			data[i] = data2[i];
 		}
-
-		for (int i = 0; i < y; i++)
-		{
-			for (int j = 0; j < x; j++)
-			{
-				int pos = i*x + j;
-
-				int pointX = (int)((j - centerX) * cosRadian - (i - centerY) * sinRadian + centerX);
-				int pointY = (int)((j - centerX) * sinRadian + (i - centerY) * cosRadian + centerY);
-
-				// poiuntX, pointYが入力画像の有効範囲にあれば出力画像へ代入する
-				if (pointX >= 0 && pointX < x && pointY >= 0 && pointY < y) {
-					int pos2 = pointY * x + pointX;
-					data[3 * pos + 0] = (unsigned char)std::min(255.0, std::max(0.0, data2[3 * pos2 + 0]));
-					data[3 * pos + 1] = (unsigned char)std::min(255.0, std::max(0.0, data2[3 * pos2 + 1]));
-					data[3 * pos + 2] = (unsigned char)std::min(255.0, std::max(0.0, data2[3 * pos2 + 2]));
-				}
-				else {
-					data[3 * pos + 0] = 0;
-					data[3 * pos + 1] = 0;
-					data[3 * pos + 2] = 0;
-				}
-			}
-		}
+		delete img;
 		delete[] data2;
 	}
 };
+class img_sift
+{
+public:
+	img_sift() {}
+
+	void sift(Image* img, const int axis, const int delta)
+	{
+		const int x = img->width;
+		const int y = img->height;
+
+		Rgb* data = new Rgb[x*y];
+		memcpy(data, img->data, sizeof(Rgb)*x*y);
+
+		if (axis == 1)
+		{
+			for (int i = 0; i < y; i++)
+			{
+				for (int j = 0; j < x - delta; j++)
+				{
+					int pos = i*x + j;
+
+					img->data[pos] = data[i * x + (j + delta)];
+				}
+				for (int j = x- delta; j < x; j++)
+				{
+					int pos = i*x + j;
+
+					img->data[pos] = data[i * x + (x-1)];
+				}
+			}
+		}
+		if (axis == -1)
+		{
+			for (int i = 0; i < y; i++)
+			{
+				for (int j = 0; j < x; j++)
+				{
+					int pos = i*x + j + delta;
+
+					if (j + delta == x) break;
+					img->data[pos] = data[i * x + j];
+				}
+				for (int j = 0; j < delta; j++)
+				{
+					int pos = i*x + j;
+
+					img->data[pos] = data[i * x + 0];
+				}
+			}
+		}
+		if (axis == 2)
+		{
+			for (int i = 0; i < y - delta; i++)
+			{
+				for (int j = 0; j < x; j++)
+				{
+					int pos = i*x + j;
+
+					img->data[pos] = data[(i+delta) * x + j];
+				}
+			}
+			for (int i = y - delta; i < y; i++)
+			{
+				for (int j = 0; j < x; j++)
+				{
+					int pos = i*x + j;
+
+					img->data[pos] = data[(y-1) * x + j];
+				}
+			}
+		}
+		if (axis == -2)
+		{
+			for (int i = delta; i < y; i++)
+			{
+				for (int j = 0; j < x; j++)
+				{
+					int pos = i *x + j;
+
+					img->data[pos] = data[ (i-delta)* x + j];
+				}
+			}
+			for (int i = 0; i < delta; i++)
+			{
+				for (int j = 0; j < x; j++)
+				{
+					int pos = i*x + j;
+
+					img->data[pos] = data[0 * x + j];
+				}
+			}
+		}
+		delete[] data;
+	}
+
+	void sift(double* data, int x, int y, const int axis, const int delta)
+	{
+		Image* img = ToImage(data, x, y);
+		sift(img, axis, delta);
+
+		double* data2 = ImageTo<double>(img);
+		for (int i = 0; i < x*y * 3; i++)
+		{
+			data[i] = data2[i];
+		}
+		delete[] data2;
+		delete img;
+	}
+
+	void sift(unsigned char* data, int x, int y, const int axis, const int delta)
+	{
+		Image* img = ToImage(data, x, y);
+		sift(img, axis, delta);
+
+		unsigned char* data2 = ImageTo<unsigned char>(img);
+		for (int i = 0; i < x*y * 3; i++)
+		{
+			data[i] = data2[i];
+		}
+		delete[] data2;
+		delete img;
+	}
+};
+
+
+
+class Augmentation
+{
+public:
+	std::mt19937 mt;
+	std::uniform_real_distribution<double> d_rand;
+
+	Augmentation(std::mt19937& mt_, std::uniform_real_distribution<double>& d_rand_)
+	{
+		gamma = 0.0;
+		rl = 0.0;
+		color_nize = 0.0;
+		rnd_noize = 0.0;
+		rotation = 0.0;
+		sift = 0.0;
+	}
+	double gamma;
+	double rl;
+	double color_nize;
+	double rnd_noize;
+	double rotation;
+	double sift;
+
+	double rnd()
+	{
+		return d_rand(mt);
+	}
+};
+
+std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* data, const int x, const int y, Augmentation& aug)
+{
+	//訓練データの水増し
+	std::vector<std::vector<unsigned char>>image_augmentat;
+
+	if (aug.gamma > 0.0)
+	{
+		std::vector<unsigned char>data2(3 * x * y, 0);
+
+		double g;
+		if ((g = aug.rnd()) < 0.2)
+		{
+			g = 1.2 - g*2.0;
+			//ガンマ補正
+			for (int i = 0; i < x*y; i++) {
+				data2[i * 3 + 0] = 255 * pow(data[i * 3 + 0] / 255.0, 1.0 / g);
+				data2[i * 3 + 1] = 255 * pow(data[i * 3 + 1] / 255.0, 1.0 / g);
+				data2[i * 3 + 2] = 255 * pow(data[i * 3 + 2] / 255.0, 1.0 / g);
+			}
+			image_augmentat.push_back(data2);
+		}
+	}
+
+	if (aug.rl > 0.0)
+	{
+		std::vector<unsigned char>data2(3 * x * y, 0);
+
+		//左右反転
+		for (int i = 0; i < y; i++) {
+			for (int j = 0; j < x; j++) {
+				int pos = (i*x + j);
+				int pos2 = (i*x + x - j - 1);
+				data2[pos * 3 + 0] = data[pos2 * 3 + 0];
+				data2[pos * 3 + 1] = data[pos2 * 3 + 1];
+				data2[pos * 3 + 2] = data[pos2 * 3 + 2];
+			}
+		}
+		image_augmentat.push_back(data2);
+	}
+	if (aug.color_nize > 0.0)
+	{
+		std::vector<unsigned char>data2(3 * x * y, 0);
+
+		float c = aug.rnd();
+		float rr = 1.0, gg = 1.0, bb = 1.0;
+		if (c < 0.3) rr = aug.rnd();
+		if (c >= 0.3 && c < 0.6) gg = aug.rnd();
+		if (c >= 0.6) bb = aug.rnd();
+		for (int i = 0; i < x*y; i++) {
+			data2[i * 3 + 0] = data[i * 3 + 0] * rr;
+			data2[i * 3 + 1] = data[i * 3 + 1] * gg;
+			data2[i * 3 + 2] = data[i * 3 + 2] * bb;
+		}
+		image_augmentat.push_back(data2);
+	}
+
+	if (aug.rnd_noize > 0.0)
+	{
+		std::vector<unsigned char>data2(3 * x * y, 0);
+
+		img_noize nz(15.0, aug.rnd());
+		nz.noize(&data2[0], x, y);
+
+		image_augmentat.push_back(data2);
+	}
+	double g;
+	if (aug.rotation > 0.0)
+	{
+		std::vector<unsigned char>data2(3 * x * y, 0);
+		for (int i = 0; i < 3 * x*y; i++) data2[i] = data[i];
+
+		img_rotation rot;
+		rot.rotation(&data2[0], x, y, (aug.rnd() < 0.5 ? 1.0 : -1.0)*(15.0 + aug.rnd()*10.0)*M_PI / 180.0);
+
+		image_augmentat.push_back(data2);
+	}
+
+	if (aug.sift > 0.0)
+	{
+		std::vector<unsigned char>data2(3 * x * y, 0);
+		for (int i = 0; i < 3 * x*y; i++) data2[i] = data[i];
+
+		img_sift s;
+
+		if (aug.rnd() < 0.5)
+		{
+			if (aug.rnd() < 0.5)
+			{
+				s.sift(&data2[0], x, y, 1, (int)(aug.rnd()*4.0 + 1));
+			}
+			else
+			{
+				s.sift(&data2[0], x, y, -1, (int)(aug.rnd()*4.0 + 1));
+			}
+		}
+		else
+		{
+			if (aug.rnd() < 0.5)
+			{
+				s.sift(&data2[0], x, y, 2, (int)(aug.rnd()*4.0 + 1));
+			}
+			else
+			{
+				s.sift(&data2[0], x, y, -2, (int)(aug.rnd()*4.0 + 1));
+			}
+		}
+
+		image_augmentat.push_back(data2);
+	}
+	return image_augmentat;
+}
+
 #undef STB_IMAGE_IMPLEMENTATION
 
 #endif

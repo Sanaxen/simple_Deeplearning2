@@ -36,8 +36,8 @@ int main(int argc, char** argv)
 	tensor label;	//ラベル
 
 	tensor test_im;		//Test画像
-	tensor test_label;	//Testラベル
-
+	tensor test_label;	//ラベル
+					
 	//トレーニング画像・ラベルを読み込む
 	image_to_tensor(dataDir, im, label, test_im, test_label);
 

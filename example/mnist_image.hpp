@@ -5,6 +5,10 @@
 
 inline void LoadMinist(std::string dataDir)
 {
+	std::mt19937 mt;
+	std::uniform_real_distribution<double> d_rand;
+	d_rand = std::uniform_real_distribution<double>(0.0, 1.0);
+
 	std::vector<std::string> train;
 	std::vector<std::string> test;
 
@@ -25,6 +29,8 @@ inline void LoadMinist(std::string dataDir)
 
 	train_image.seekg(4*4, ios_base::beg);
 	train_label.seekg(4*2, ios_base::beg);
+
+	int cnt = 0;
 	for( int i = 0; i < N; ++i )
 	{
 		unsigned char tmp_lab;
@@ -43,6 +49,31 @@ inline void LoadMinist(std::string dataDir)
 		train.push_back(filename);
 
 		stbi_write_bmp(filename, 28, 28, 3, (void*)tmp);
+
+		//ŒP—ûƒf[ƒ^‚Ì…‘‚µ
+		if (1)
+		{
+			Augmentation aug(mt, d_rand);
+
+			aug.gamma = 0.0;
+			aug.rl = 0.0;
+			aug.color_nize = 0.2;
+			aug.rotation = 0.2;
+			aug.sift = 0.2;
+
+			std::vector<std::vector<unsigned char>> imageaug = ImageAugmentation(tmp, 28, 28, aug);
+
+			img_greyscale grey;
+			for (int i = 0; i < imageaug.size(); i++)
+			{
+				grey.greyscale(&imageaug[i][0], 28, 28);
+
+				sprintf(filename, "%s/train_augment\\N%d_%03d.bmp", dataDir.c_str(), (int)tmp_lab, cnt);
+				train.push_back(filename);
+				stbi_write_bmp(filename, 28, 28, 3, (void*)&imageaug[i][0]);
+				cnt++;
+			}
+		}
 	}
 
 	const int M = 1000;
@@ -200,16 +231,13 @@ inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label, tens
 		fclose(fp);
 
 		fprintf(stderr, "total %d set\n", im.size());
-	}
-
-	{
-
-		FILE* fp = fopen((dataDir+ "\\test_files.txt").c_str(), "r");
+		
+		fp = fopen((dataDir + "\\test_files.txt").c_str(), "r");
 		if (!fp) return -1;
 
 		for (int i = 0; i < N; ++i)
 		{
-			fprintf(stderr, "%d/%d           \r", (i + 1), N );
+			fprintf(stderr, "%d/%d           \r", (i + 1), N);
 			if (!fgets(file, 256, fp))
 			{
 				break;
@@ -221,28 +249,29 @@ inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label, tens
 			vector<vector<double>> tmp(1, vector<double>(img->height*img->width));
 			vector<vector<double>> tmp_lb(1, vector<double>(10, 0));
 
-			if ( Normalization )
+			if (Normalization)
 			{
 				int sz = img->height*img->width;
 				double* whitening_img = image_whitening(img);
 #pragma omp parallel for
 				for (int k = 0; k < sz; k++)
 				{
-					tmp[0][k] = whitening_img[3*k+0];
+					tmp[0][k] = whitening_img[3 * k + 0];
 				}
-				delete [] whitening_img;
-			}else
+				delete[] whitening_img;
+			}
+			else
 			{
 				int sz = img->height*img->width;
 #pragma omp parallel for
 				for (int k = 0; k < sz; k++)
 				{
-					tmp[0][k] = (double)img->data[k].r/255.0;
+					tmp[0][k] = (double)img->data[k].r / 255.0;
 				}
 			}
 
 			int lb = filename_to_label(file);
-			if ( lb >= 0 && lb < 10 ) tmp_lb[0][lb] = 1.0;
+			if (lb >= 0 && lb < 10) tmp_lb[0][lb] = 1.0;
 
 			test_im.push_back(tmp);
 			test_label.push_back(tmp_lb);
