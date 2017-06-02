@@ -51,7 +51,7 @@ inline void LoadMinist(std::string dataDir)
 		stbi_write_bmp(filename, 28, 28, 3, (void*)tmp);
 
 		//ŒP—ûƒf[ƒ^‚Ì…‘‚µ
-		if (1)
+		if (0)
 		{
 			Augmentation aug(mt, d_rand);
 
