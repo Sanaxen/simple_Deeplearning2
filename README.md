@@ -8,16 +8,10 @@ note  
 
 <img src="https://github.com/Sanaxen/simple_Deeplearning2/blob/master/image/plot.png"/>  
 
-**Optimizer**    
+Log <https://github.com/Sanaxen/simple_Deeplearning2/blob/master/log.md>  
 
-default Adam  
-2017/5/24 AdaGrad,RMSProp,AdaDelta  
-2017/5/30 SGD  
-
-**Initial Weight**  
-
-he : for relu  
-xavier : for tanh, sigmoid... 
+Add Automatic augmentation image data API  
+Add Optimizer "SMORMS3"  
 
 note  
 -------------------------------------------
