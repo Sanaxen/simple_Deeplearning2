@@ -763,7 +763,7 @@ std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* d
 		std::vector<unsigned char>data2(3 * x * y, 0);
 
 		double g;
-		if ((g = aug.rnd()) < 0.2)
+		if ((g = aug.rnd()) < aug.gamma)
 		{
 			g = 1.2 - g*2.0;
 			//ƒKƒ“ƒ}•â³
@@ -776,7 +776,7 @@ std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* d
 		}
 	}
 
-	if (aug.rl > 0.0)
+	if (aug.rl > 0.0 && aug.rnd() < aug.rl)
 	{
 		std::vector<unsigned char>data2(3 * x * y, 0);
 
@@ -792,7 +792,7 @@ std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* d
 		}
 		image_augmentat.push_back(data2);
 	}
-	if (aug.color_nize > 0.0)
+	if (aug.color_nize > 0.0 && aug.rnd() < aug.color_nize)
 	{
 		std::vector<unsigned char>data2(3 * x * y, 0);
 
@@ -809,9 +809,10 @@ std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* d
 		image_augmentat.push_back(data2);
 	}
 
-	if (aug.rnd_noize > 0.0)
+	if (aug.rnd_noize > 0.0 && aug.rnd() < aug.rnd_noize)
 	{
 		std::vector<unsigned char>data2(3 * x * y, 0);
+		for (int i = 0; i < 3 * x*y; i++) data2[i] = data[i];
 
 		img_noize nz(15.0, aug.rnd());
 		nz.noize(&data2[0], x, y);
@@ -819,7 +820,7 @@ std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* d
 		image_augmentat.push_back(data2);
 	}
 	double g;
-	if (aug.rotation > 0.0)
+	if (aug.rotation > 0.0 && aug.rnd() < aug.rotation)
 	{
 		std::vector<unsigned char>data2(3 * x * y, 0);
 		for (int i = 0; i < 3 * x*y; i++) data2[i] = data[i];
@@ -830,7 +831,7 @@ std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* d
 		image_augmentat.push_back(data2);
 	}
 
-	if (aug.sift > 0.0)
+	if (aug.sift > 0.0 && aug.rnd() < aug.sift)
 	{
 		std::vector<unsigned char>data2(3 * x * y, 0);
 		for (int i = 0; i < 3 * x*y; i++) data2[i] = data[i];
