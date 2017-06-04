@@ -728,11 +728,14 @@ public:
 class Augmentation
 {
 public:
-	std::mt19937 mt;
-	std::uniform_real_distribution<double> d_rand;
+	std::mt19937* mt;
+	std::uniform_real_distribution<double>* d_rand;
 
-	Augmentation(std::mt19937& mt_, std::uniform_real_distribution<double>& d_rand_)
+	Augmentation(std::mt19937* mt_, std::uniform_real_distribution<double>* d_rand_)
 	{
+		mt = mt_;
+		d_rand = d_rand_;
+
 		gamma = 0.0;
 		rl = 0.0;
 		color_nize = 0.0;
@@ -747,9 +750,10 @@ public:
 	double rotation;
 	double sift;
 
-	double rnd()
+	inline double rnd()
 	{
-		return d_rand(mt);
+		double g = (*d_rand)(*mt);
+		return g;
 	}
 };
 
