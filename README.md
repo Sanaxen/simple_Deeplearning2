@@ -6,6 +6,7 @@ note  
 -------------------------------------------
 **real time Plotting**  
 
+You need gnuplot to display the graph.  
 <img src="https://github.com/Sanaxen/simple_Deeplearning2/blob/master/image/plot.png"/>  
 
 Log <https://github.com/Sanaxen/simple_Deeplearning2/blob/master/log.md>  
