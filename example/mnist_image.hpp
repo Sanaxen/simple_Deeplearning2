@@ -51,9 +51,9 @@ inline void LoadMinist(std::string dataDir)
 		stbi_write_bmp(filename, 28, 28, 3, (void*)tmp);
 
 		//ŒP—ûƒf[ƒ^‚Ì…‘‚µ
-		if (0)
+		if (1)
 		{
-			Augmentation aug(mt, d_rand);
+			Augmentation aug(&mt, &d_rand);
 
 			aug.gamma = 0.0;
 			aug.rl = 0.0;
@@ -203,7 +203,7 @@ inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label, tens
 			if ( Normalization )
 			{
 				int sz = img->height*img->width;
-				double* whitening_img = image_whitening(img);
+				double* whitening_img = image_whitening<double>(img);
 #pragma omp parallel for
 				for (int k = 0; k < sz; k++)
 				{
@@ -252,7 +252,7 @@ inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label, tens
 			if (Normalization)
 			{
 				int sz = img->height*img->width;
-				double* whitening_img = image_whitening(img);
+				double* whitening_img = image_whitening<double>(img);
 #pragma omp parallel for
 				for (int k = 0; k < sz; k++)
 				{
@@ -297,7 +297,7 @@ inline int get_image_and_label( char* imageFile, tensor& image)
 	if ( img == NULL ) return -1;
 
 	int sz = img->height*img->width;
-	double* whitening_img = image_whitening(img);
+	double* whitening_img = image_whitening<double>(img);
 #pragma omp parallel for
 	for (int k = 0; k < sz; k++)
 	{

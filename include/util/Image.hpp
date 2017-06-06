@@ -2,6 +2,7 @@
 
 #undef __IMAGE_HPP
 
+#include "pca_normalizedData.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -18,10 +19,10 @@
 using namespace std;
 
 typedef struct Rgb_ {
-	unsigned char b;
-	unsigned char g;
-	unsigned char r;
-	unsigned char alp;
+	double b;
+	double g;
+	double r;
+	double alp;
 	~Rgb_() {}
 	Rgb_() {}
 	inline Rgb_(int x, int y, int z)
@@ -184,44 +185,51 @@ inline Image* readImage(char *filename)
 	return img;
 }
 
-inline double* image_whitening(Image* img, double eps = 0.0)
+//PCA on Normalized Data
+template<class T>
+inline T* image_whitening(Image* img, double eps = 0.0)
 {
 	double av = 0.0;
 	const int sz = img->height*img->width;
-	double* data  = new double[3*sz];
+	T* data = ImageTo<T>(img);
 
-#pragma omp parallel for reduction(+:av)
-	for (int k = 0; k < sz; k++)
-	{
-		data[3*k+0] = img->data[k].r / 255.0;
-		data[3*k+1] = img->data[k].g / 255.0;
-		data[3*k+2] = img->data[k].b / 255.0;
-		av += data[3*k+0];
-		av += data[3*k+1];
-		av += data[3*k+2];
-	}
-	av /= (double)(3 * sz);
+	T* ret =  pca_normalizedData(data, sz * 3, eps);
+	delete[] data;
 
-	double sd = 0.0;
-#pragma omp parallel for reduction(+:sd)
-	for (int k = 0; k < sz; k++)
-	{
-		sd += pow(data[3*k+0] - av, 2.0);
-		sd += pow(data[3*k+1] - av, 2.0);
-		sd += pow(data[3*k+2] - av, 2.0);
-	}
-	sd = sqrt(sd / (double)(3 * sz)) + eps;
-	//if ( fabs(sd) < 1.0e-16 ) return;
-
-#pragma omp parallel for
-	for (int k = 0; k < sz; k++)
-	{
-		data[3*k+0] = (data[3*k+0] - av) / sd;
-		data[3*k+1] = (data[3*k+1] - av) / sd;
-		data[3*k+2] = (data[3*k+2] - av) / sd;
-	}
-
-	return data;
+	return ret;
+//
+//#pragma omp parallel for reduction(+:av)
+//	for (int k = 0; k < sz; k++)
+//	{
+//		data[3*k+0] = img->data[k].r / 255.0;
+//		data[3*k+1] = img->data[k].g / 255.0;
+//		data[3*k+2] = img->data[k].b / 255.0;
+//		av += data[3*k+0];
+//		av += data[3*k+1];
+//		av += data[3*k+2];
+//	}
+//	av /= (double)(3 * sz);
+//
+//	double sd = 0.0;
+//#pragma omp parallel for reduction(+:sd)
+//	for (int k = 0; k < sz; k++)
+//	{
+//		sd += pow(data[3*k+0] - av, 2.0);
+//		sd += pow(data[3*k+1] - av, 2.0);
+//		sd += pow(data[3*k+2] - av, 2.0);
+//	}
+//	sd = sqrt(sd / (double)(3 * sz)) + eps;
+//	//if ( fabs(sd) < 1.0e-16 ) return;
+//
+//#pragma omp parallel for
+//	for (int k = 0; k < sz; k++)
+//	{
+//		data[3*k+0] = (data[3*k+0] - av) / sd;
+//		data[3*k+1] = (data[3*k+1] - av) / sd;
+//		data[3*k+2] = (data[3*k+2] - av) / sd;
+//	}
+//
+//	return data;
 }
 
 class img_greyscale
@@ -326,9 +334,9 @@ public:
 	{
 		for (int i = 0; i < img->height*img->width; i++) 
 		{
-			img->data[i].r = (unsigned char)(std::min(255.0f, LUT_HC[img->data[i].r] * img->data->r));
-			img->data[i].g = (unsigned char)(std::min(255.0f, LUT_HC[img->data[i].g] * img->data->r));
-			img->data[i].b = (unsigned char)(std::min(255.0f, LUT_HC[img->data[i].b] * img->data->r));
+			img->data[i].r = (unsigned char)(std::min(255.0, LUT_HC[(unsigned char)img->data[i].r] * img->data->r));
+			img->data[i].g = (unsigned char)(std::min(255.0, LUT_HC[(unsigned char)img->data[i].g] * img->data->r));
+			img->data[i].b = (unsigned char)(std::min(255.0, LUT_HC[(unsigned char)img->data[i].b] * img->data->r));
 		}
 	}
 	void high(double* data, int x, int y)
@@ -353,9 +361,9 @@ public:
 	{
 		for (int i = 0; i < img->height*img->width; i++)
 		{
-			img->data[i].r = (unsigned char)(std::min(255.0f, LUT_LC[img->data[i].r] * img->data->r));
-			img->data[i].g = (unsigned char)(std::min(255.0f, LUT_LC[img->data[i].g] * img->data->r));
-			img->data[i].b = (unsigned char)(std::min(255.0f, LUT_LC[img->data[i].b] * img->data->r));
+			img->data[i].r = (unsigned char)(std::min(255.0, LUT_LC[(unsigned char)img->data[i].r] * img->data->r));
+			img->data[i].g = (unsigned char)(std::min(255.0, LUT_LC[(unsigned char)img->data[i].g] * img->data->g));
+			img->data[i].b = (unsigned char)(std::min(255.0, LUT_LC[(unsigned char)img->data[i].b] * img->data->b));
 		}
 	}
 	void low(double* data, int x, int y)
