@@ -6,8 +6,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../stb/stb_image.h"
-#include "../stb/stb_image_write.h"
+#include "../third_party/stb/stb_image.h"
+#include "../third_party/stb/stb_image_write.h"
 
 #pragma warning(disable : 4244)
 #pragma warning(disable : 4018)
