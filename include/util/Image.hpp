@@ -749,14 +749,18 @@ public:
 		color_nize = 0.0;
 		rnd_noize = 0.0;
 		rotation = 0.0;
+		rotation_max = 10.0;
 		sift = 0.0;
+		sift_max = 4.0;
 	}
 	double gamma;
 	double rl;
 	double color_nize;
 	double rnd_noize;
 	double rotation;
+	double rotation_max;
 	double sift;
+	double sift_max;
 
 	inline double rnd()
 	{
@@ -838,7 +842,7 @@ std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* d
 		for (int i = 0; i < 3 * x*y; i++) data2[i] = data[i];
 
 		img_rotation rot;
-		rot.rotation(&data2[0], x, y, (aug.rnd() < 0.5 ? 1.0 : -1.0)*(15.0 + aug.rnd()*10.0)*M_PI / 180.0);
+		rot.rotation(&data2[0], x, y, (aug.rnd() < 0.5 ? 1.0 : -1.0)*(aug.rnd()*aug.rotation_max+0.5)*M_PI / 180.0);
 
 		image_augmentat.push_back(data2);
 	}
@@ -854,22 +858,22 @@ std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* d
 		{
 			if (aug.rnd() < 0.5)
 			{
-				s.sift(&data2[0], x, y, 1, (int)(aug.rnd()*4.0 + 1));
+				s.sift(&data2[0], x, y, 1, (int)(aug.rnd()*aug.sift_max + 0.5));
 			}
 			else
 			{
-				s.sift(&data2[0], x, y, -1, (int)(aug.rnd()*4.0 + 1));
+				s.sift(&data2[0], x, y, -1, (int)(aug.rnd()*aug.sift_max + 0.5));
 			}
 		}
 		else
 		{
 			if (aug.rnd() < 0.5)
 			{
-				s.sift(&data2[0], x, y, 2, (int)(aug.rnd()*4.0 + 1));
+				s.sift(&data2[0], x, y, 2, (int)(aug.rnd()*aug.sift_max + 0.5));
 			}
 			else
 			{
-				s.sift(&data2[0], x, y, -2, (int)(aug.rnd()*4.0 + 1));
+				s.sift(&data2[0], x, y, -2, (int)(aug.rnd()*aug.sift_max + 0.5));
 			}
 		}
 

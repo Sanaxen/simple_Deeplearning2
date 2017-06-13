@@ -55,11 +55,13 @@ inline void LoadMinist(std::string dataDir)
 		{
 			Augmentation aug(&mt, &d_rand);
 
-			aug.gamma = 0.0;
+			aug.gamma = 0.2;
 			aug.rl = 0.0;
-			aug.color_nize = 0.2;
+			aug.rnd_noize = 0.2;
 			aug.rotation = 0.2;
-			aug.sift = 0.2;
+			aug.rotation_max = 45.0;
+			aug.sift = 0.3;
+			aug.sift_max = 5.0;
 
 			std::vector<std::vector<unsigned char>> imageaug = ImageAugmentation(tmp, 28, 28, aug);
 
