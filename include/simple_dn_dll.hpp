@@ -195,6 +195,14 @@ typedef tensor(WINAPI *dn_predict)(void* net_p, tensor& X);
 */
 typedef void(WINAPI *dn_enable_threads_mode)(void* net_p, int thread_num);
 
+/*
+Adjustment of automatic learning rate
+net_p = Pointer to neural network object
+c = Adjustment factor
+*/
+typedef void(WINAPI *dn_adjustment_learning_rate)(void* net_p, const double c);
+
+
 #define DNN_DEF_FUNC(f)	dn_ ## f f ## _dn = NULL;
 #define DNN_FUNC(f)	f ## _dn = (dn_ ## f)GetProcAddress(__hModule, # f);if ( f ## _dn == NULL ) printf("load %s error.\n", #f);
 
@@ -216,6 +224,7 @@ DNN_DEF_FUNC(learning);
 DNN_DEF_FUNC(predict);
 DNN_DEF_FUNC(enable_threads_mode);
 DNN_DEF_FUNC(set_test_data);
+DNN_DEF_FUNC(adjustment_learning_rate);
 
 inline int simple_dnn_init(const char* this_dll)
 {
@@ -252,6 +261,7 @@ inline int simple_dnn_init(const char* this_dll)
   DNN_FUNC(predict);
   DNN_FUNC(enable_threads_mode);
   DNN_FUNC(set_test_data);
+  DNN_FUNC(adjustment_learning_rate);
   return 0;
 }
 inline void simple_dnn_term()

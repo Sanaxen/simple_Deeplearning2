@@ -61,7 +61,7 @@ inline void LoadMinist(std::string dataDir)
 			aug.rotation = 0.2;
 			aug.rotation_max = 45.0;
 			aug.sift = 0.3;
-			aug.sift_max = 5.0;
+			aug.sift_max = 4.0;
 
 			std::vector<std::vector<unsigned char>> imageaug = ImageAugmentation(tmp, 28, 28, aug);
 

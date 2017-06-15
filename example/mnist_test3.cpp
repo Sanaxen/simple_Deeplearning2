@@ -52,8 +52,11 @@ int main(int argc, char** argv)
 	set_layers_dn(net, layer);
 
 
+	adjustment_learning_rate_dn(net, 0.001);
+
 	SaveLayer_dn(layer);
 	SaveNet_dn(net);
+
 
 	//‚Ü‚¾ŠwK‚ªI‚í‚Á‚Ä‚¢‚È‚¢‚©H
 	if (!PathFileExistsA("mnist.model"))
