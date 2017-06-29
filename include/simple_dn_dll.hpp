@@ -48,6 +48,7 @@ extern "C"
 #endif
 
 typedef void* tensor_p;
+typedef double(*loss_function_t)(double* mat1, int m1, int n1, double* mat2, int m2, int n2);
 
 /*
 	Generation of neural network
@@ -202,7 +203,23 @@ c = Adjustment factor
 */
 typedef void(WINAPI *dn_adjustment_learning_rate)(void* net_p, const double c);
 
+/*
+	Specified control for deriving the derivative of loss function by numerical differentiation
+	net_p = Pointer to neural network object
+	flag = 1 'ON'
+	flag = 0 'OFF'
+*/
+typedef void(WINAPI *dn_set_loss_Numerical_differentiation)(void* net_p, int flag);
 
+/*
+	Definition of loss function
+	net_p = Pointer to neural network object
+	fnc = Function pointer
+
+*/
+typedef void(WINAPI *dn_set_Loss_user_function)(void* net_p, loss_function_t fnc);
+
+	
 #define DNN_DEF_FUNC(f)	dn_ ## f f ## _dn = NULL;
 #define DNN_FUNC(f)	f ## _dn = (dn_ ## f)GetProcAddress(__hModule, # f);if ( f ## _dn == NULL ) printf("load %s error.\n", #f);
 
@@ -225,6 +242,8 @@ DNN_DEF_FUNC(predict);
 DNN_DEF_FUNC(enable_threads_mode);
 DNN_DEF_FUNC(set_test_data);
 DNN_DEF_FUNC(adjustment_learning_rate);
+DNN_DEF_FUNC(set_loss_Numerical_differentiation);
+DNN_DEF_FUNC(set_Loss_user_function);
 
 inline int simple_dnn_init(const char* this_dll)
 {
@@ -262,6 +281,8 @@ inline int simple_dnn_init(const char* this_dll)
   DNN_FUNC(enable_threads_mode);
   DNN_FUNC(set_test_data);
   DNN_FUNC(adjustment_learning_rate);
+  DNN_FUNC(set_loss_Numerical_differentiation);
+  DNN_FUNC(set_Loss_user_function);
   return 0;
 }
 inline void simple_dnn_term()
