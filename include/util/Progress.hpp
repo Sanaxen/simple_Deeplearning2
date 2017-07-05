@@ -1,25 +1,43 @@
 #ifndef _PROGRESS_H
 #define _PROGRESS_H
 
+#include "text_color.hpp"
+
 class ProgressPrint
 {
+	HANDLE hStdout;
+	CONSOLE_SCREEN_BUFFER_INFO info;
+	textColor console;
+
 	int counter_max;
 	int step;
+	int current_i;
 	std::chrono::system_clock::time_point start_time;
 public:
+	inline void init()
+	{
+		current_i = 0;
+		hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+	}
 	ProgressPrint( int n )
 	{
+		init();
 		counter_max = n;
 	}
 	ProgressPrint()
 	{
+		init();
 		newbar();
 	}
 
-	inline void newbar() const
+	inline void newbar()
 	{
+		console.color(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 		printf("0%%   10   20   30   40   50   60   70   80   90   100%%\n");
+		GetConsoleScreenBufferInfo(hStdout, (PCONSOLE_SCREEN_BUFFER_INFO)&info);
 		printf("|----|----|----|----|----|----|----|----|----|----|\n\r"); fflush(stdout);
+		console.reset();
+		if (current_i > 0 ) print(current_i);
 	}
 	inline void start()
 	{
@@ -31,7 +49,13 @@ public:
 	inline void end()
 	{
 		printf("\r");
-		printf("################################################### => 100%%!!          \n");
+		SetConsoleCursorPosition(hStdout, info.dwCursorPosition);
+		console.color(FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_GREEN | BACKGROUND_INTENSITY);
+		console.printf("###################################################");
+		console.color(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+		console.clear_line(5);
+		console.printf("\n => 100%%!!          \n");
+		console.reset();
 		fflush(stdout);
 	}
 
@@ -43,26 +67,33 @@ public:
 
 		if ( i % step == 0 || duration > 10.0)
 		{
+			current_i = i;
 			double d = 100.0*(double)i / (double)(counter_max - 1);
 
 			printf("\r");
+			SetConsoleCursorPosition(hStdout, info.dwCursorPosition);
+			console.color(FOREGROUND_RED | FOREGROUND_GREEN /*| FOREGROUND_INTENSITY*/ | BACKGROUND_RED | BACKGROUND_GREEN /*| BACKGROUND_INTENSITY*/);
 			for (int ii = 0; ii < d/2; ii++)
 			{
-				printf("#");
+				console.printf("#");
 			}
-			if (i / step == 0) printf("#");
+			if (i / step == 0) console.printf("#");
+			console.reset();
 
+			console.color(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 			if ( d < 0.1)
 			{
-				printf("=>(%d/%d) %.1f%%", i, counter_max - 1, d);
+				console.printf("\n=>(%d/%d) %.1f%%", i, counter_max - 1, d);
 			}
 			else
 			{
-				printf("=>(%d/%d) %.3f%%", i, counter_max - 1, d);
+				console.printf("\n=>(%d/%d) %.3f%%", i, counter_max - 1, d);
 			}
-			if ( i % 2 ) printf("*");else printf(" ");
+			console.reset();
+			//if ( i % 2 ) console.printf("*");else console.printf(" ");
 			start_time = end;
 			fflush(stdout);
+			console.reset();
 		}
 	}
 };
