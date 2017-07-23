@@ -1,11 +1,14 @@
 LAYER 3
 1 [28, 28]
+
 LAYER_TYPE_Convolutional/layer_001
-20 [28, 28]->(5, 5)->[28, 28] st 1 ReLU
+20 (5, 5) st 1 pd 2 ReLU
+
 LAYER_TYPE_maxPooling/layer_002
-20 [28, 28]->(4, 4)->[7, 7] st 4 Identity
+20 (4, 4) st 4 pd 0 Identity
+
 LAYER_TYPE_FullyConnected/layer_003
-1 [7, 7]->[1, 10] Softmax
+1 [1, 10] Softmax
 
 INIT_SCALE/layer_001 1.000000
 INIT_SCALE/layer_002 1.000000

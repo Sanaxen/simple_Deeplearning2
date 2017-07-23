@@ -94,6 +94,25 @@ public:
 			start_time = end;
 			fflush(stdout);
 			console.reset();
+		}else
+		{
+			current_i = i;
+			double d = 100.0*(double)i / (double)(counter_max - 1);
+
+			printf("\r");
+			SetConsoleCursorPosition(hStdout, info.dwCursorPosition);
+			console.color(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+			if ( d < 0.1)
+			{
+				console.printf("\n=>(%d/%d) %.1f%%", i, counter_max - 1, d);
+			}
+			else
+			{
+				console.printf("\n=>(%d/%d) %.3f%%", i, counter_max - 1, d);
+			}
+			console.reset();
+			fflush(stdout);
+			console.reset();
 		}
 	}
 };

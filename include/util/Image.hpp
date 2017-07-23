@@ -4,10 +4,15 @@
 
 #include "pca_normalizedData.hpp"
 
+#ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../third_party/stb/stb_image.h"
+#endif
+
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../third_party/stb/stb_image_write.h"
+#endif
 
 #pragma warning(disable : 4244)
 #pragma warning(disable : 4018)
@@ -882,6 +887,6 @@ std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* d
 	return image_augmentat;
 }
 
-#undef STB_IMAGE_IMPLEMENTATION
+//#undef STB_IMAGE_IMPLEMENTATION
 
 #endif

@@ -1,0 +1,48 @@
+LAYER 11
+1 [28, 28]
+
+LAYER_TYPE_Convolutional/layer_001
+20 (5, 5) st 1 pd 2 ReLU
+
+LAYER_TYPE_maxPooling/layer_002
+20 (4, 4) st 4 pd 1 Identity
+
+LAYER_TYPE_BatchNormalize/layer_003
+0.999000 Identity
+
+LAYER_TYPE_Dropout/layer_004
+0.100000 Identity
+
+LAYER_TYPE_Convolutional/layer_005
+32 (5, 5) st 1 pd 2 ReLU
+
+LAYER_TYPE_Convolutional/layer_006
+32 (5, 5) st 1 pd 1 ReLU
+
+LAYER_TYPE_maxPooling/layer_007
+32 (2, 2) st 2 pd 1 Identity
+
+LAYER_TYPE_BatchNormalize/layer_008
+0.999000 ReLU
+
+LAYER_TYPE_FullyConnected/layer_009
+1 [1, 28] ReLU
+
+LAYER_TYPE_Dropout/layer_010
+0.350000 Identity
+
+LAYER_TYPE_FullyConnected/layer_011
+1 [1, 10] Softmax
+
+INIT_SCALE/layer_001 1.000000
+INIT_SCALE/layer_002 1.000000
+INIT_SCALE/layer_003 1.000000
+INIT_SCALE/layer_004 1.000000
+INIT_SCALE/layer_005 1.000000
+INIT_SCALE/layer_006 1.000000
+INIT_SCALE/layer_007 1.000000
+INIT_SCALE/layer_008 1.000000
+INIT_SCALE/layer_009 1.000000
+INIT_SCALE/layer_010 1.000000
+INIT_SCALE/layer_011 1.000000
+END

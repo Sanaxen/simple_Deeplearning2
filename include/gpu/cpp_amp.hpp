@@ -42,10 +42,10 @@ inline std::string WStringToString
     return( oRet );
 }
 
-inline void gpuInfo(const char* acceleratorInfo)
+inline void gpuInfo(const char* acceleratorInfo = NULL)
 {
 #if USE_GPU
-	FILE* fp = fopen(acceleratorInfo, "w");
+	FILE* fp = (acceleratorInfo != NULL ) ? fopen(acceleratorInfo, "w") :stdout;
 	if (fp == NULL) return;
 
 	std::vector<accelerator> accs = accelerator::get_all();
@@ -58,6 +58,8 @@ inline void gpuInfo(const char* acceleratorInfo)
 			i, accs[i].supports_double_precision ? "true" : "false");
 	}
 
+	//accelerator::set_default(accs[0].device_path);
+
 	accelerator default_acc;
 	fprintf(fp, "-------------------- default accelerator -------------------------\n");
 	fprintf(fp, "default_acc.description:%s\n", WStringToString(default_acc.description).c_str());
@@ -66,7 +68,9 @@ inline void gpuInfo(const char* acceleratorInfo)
 	fprintf(fp, "default_acc.supports_double_precision:%s\n\n",
 		default_acc.supports_double_precision ? "true" : "false");
 
-	fclose(fp);
+	if ( fp && fp != stdout ) fclose(fp);
+#else
+	fprintf(stdout, "CPU mode (default no use GPU accelerator)\n");
 #endif
 }
 
