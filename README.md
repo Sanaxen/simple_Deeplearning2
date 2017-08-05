@@ -3,11 +3,11 @@ Simple Software Development Kit(SDK) for easy trial of Deeplearning  
 For personal use
 
 ## What's New
--2017/7/23 MNIST 99%  
--2017/6/02 Optimizer SMORMS3	However, it is not working properly  
--2017/6/02 Add Automatic augmentation image data API  
--2017/5/30 SGD  
--2017/5/24 AdaGrad,RMSProp,AdaDelta  
+- 2017/7/23 MNIST 99%  
+- 2017/6/02 Optimizer SMORMS3	However, it is not working properly  
+- 2017/6/02 Add Automatic augmentation image data API  
+- 2017/5/30 SGD  
+- 2017/5/24 AdaGrad,RMSProp,AdaDelta  
 
 -------------------------------------------
 note  
@@ -15,10 +15,10 @@ note  
 -real time Plotting**  
 
 You need gnuplot to display the graph.  
--<img src="https://github.com/Sanaxen/simple_Deeplearning2/blob/master/image/plot.png"/>  
--<img src="https://github.com/Sanaxen/simple_Deeplearning2/blob/master/image/accuracy_plot.png"/>  
+- <img src="https://github.com/Sanaxen/simple_Deeplearning2/blob/master/image/plot.png"/>  
+- <img src="https://github.com/Sanaxen/simple_Deeplearning2/blob/master/image/accuracy_plot.png"/>  
 
--Initial Weight he : for relu  xavier : for tanh, sigmoid... 
+- Initial Weight he : for relu  xavier : for tanh, sigmoid... 
 
 
 note  
