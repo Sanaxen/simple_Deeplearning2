@@ -12,7 +12,7 @@ For personal use
 -------------------------------------------
 note  
 -------------------------------------------
--real time Plotting**  
+- real time Plotting  (gnuplot)
 
 You need gnuplot to display the graph.  
 - <img src="https://github.com/Sanaxen/simple_Deeplearning2/blob/master/image/plot.png"/>  
