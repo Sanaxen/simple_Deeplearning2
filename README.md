@@ -3,11 +3,12 @@ Simple Software Development Kit(SDK) for easy trial of Deeplearning  
 For personal use
 
 ## What's New
+- 2017/8/07 CIFAR10 76%  
 - 2017/7/23 MNIST 99%  
 - 2017/6/02 Optimizer SMORMS3	However, it is not working properly  
 - 2017/6/02 Add Automatic augmentation image data API  
-- 2017/5/30 SGD  
-- 2017/5/24 AdaGrad,RMSProp,AdaDelta  
+- 2017/5/30 Optimizer SGD  
+- 2017/5/24 Optimizer AdaGrad,RMSProp,AdaDelta  
 
 -------------------------------------------
 note  
@@ -26,7 +27,7 @@ note  
 It is better to use <https://github.com/Sanaxen/Deeplearning> because quality is still bad.  
 * The quality of <https://github.com/Sanaxen/Deeplearning> is higher
 
-**Procedure for running example**
+**Procedure for running example MNIST**
 -------------------------------
 
 **STEP 1**
