@@ -1,9 +1,9 @@
-#ifndef _PCA_NormalizedData_HPP
-#define _PCA_NormalizedData_HPP
+#ifndef _GCN_NormalizedData_HPP
+#define _GCN_NormalizedData_HPP
 
 //PCA on Normalized Data
 template<class T>
-inline T* pca_normalizedData(T* data, const int dataNum, double eps = 0.0)
+inline T* gcn_normalizedData(T* data, const int dataNum, double eps = 0.0)
 {
 	double av = 0.0;
 	const int sz = dataNum;

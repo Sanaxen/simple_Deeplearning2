@@ -3,6 +3,8 @@ Simple Software Development Kit(SDK) for easy trial of Deeplearning  
 For personal use
 
 ## What's New
+- 2017/8/13 96% accuracy on MNIST in 6 minutes training (@Core i7-2820QM CPU 2.3GHz)(Second or later after cache creation).
+- 2017/8/12 out of core (Large-scale learning data)  
 - 2017/8/07 CIFAR10 **76%**  
 - 2017/7/23 MNIST **99%**  
 - 2017/6/02 Optimizer SMORMS3	However, it is not working properly  

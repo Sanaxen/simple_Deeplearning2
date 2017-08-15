@@ -2,7 +2,7 @@
 
 #undef __IMAGE_HPP
 
-#include "pca_normalizedData.hpp"
+#include "gcn_normalizedData.hpp"
 
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -124,7 +124,7 @@ inline T* ImageTo(Image* img)
 
 inline Image* readImage(char *filename)
 {
-	int i, j;
+	//int i, j;
 	//int real_width;
 	//unsigned int width, height;
 	//unsigned int color;
@@ -149,8 +149,9 @@ inline Image* readImage(char *filename)
 	img->height = y;
 	img->width = x;
 
-	for (i = 0; i<y; i++) {
-		for (j = 0; j<x; j++) {
+//#pragma omp parallel for
+	for (int i = 0; i<y; ++i) {
+		for (int j = 0; j<x; ++j) {
 			if (nbit == 1)	//8bit
 			{
 				int pos = (i*x + j);
@@ -198,7 +199,7 @@ inline T* image_whitening(Image* img, double eps = 0.0)
 	const int sz = img->height*img->width;
 	T* data = ImageTo<T>(img);
 
-	T* ret =  pca_normalizedData(data, sz * 3, eps);
+	T* ret =  gcn_normalizedData(data, sz * 3, eps);
 	delete[] data;
 
 	return ret;
@@ -560,28 +561,90 @@ public:
 		double cosRadian = cos(rad);
 		double sinRadian = sin(rad);
 
-		Rgb* data = new Rgb[x*y];
-		memcpy(data, img->data, sizeof(Rgb)*x*y);
+		//‘ÎŠp‚Ì’·‚³‚É‰æ‘œ‚ğŠg‘å‚µ‚Ä‚¨‚­
+		double r = sqrt(centerX*centerX + centerY*centerY)*2.0;
+		int R = (int)(r + 0.5);
 
-		for (int i = 0; i < y; i++)
+		//‘—Ê•ª
+		int fx = (R - x) / 2;
+		int fy = (R - y) / 2;
+
+		int Rx = x + 2 * fx;
+		int Ry = y + 2 * fy;
+		Image* RimgI = new Image;
+		RimgI->data = new Rgb[Rx*Ry];
+		RimgI->height = Ry;
+		RimgI->width = Rx;
+
+		//Šg‘å—Ìˆæ‚É•¡Ê
+		for (int i = 0; i < Ry; i++)
 		{
-			for (int j = 0; j < x; j++)
+			for (int j = 0; j < Rx; j++)
 			{
-				int pos = i*x + j;
+				int pos = i*Rx + j;
+				if (i - fy >= 0 && i - fy < y && j - fx >= 0 && j - fx < x)
+				{
+					RimgI->data[pos] = img->data[(i - fy) * x + (j - fx)];
+				}
+				else
+				{
+					//Šg‘å‚µ‚ÄL‚°‚½‚Æ‚±‚ë‚Í‹«ŠE’l‚Å–„‚ß‚é
+					int ii = -1, jj = -1;
+
+					if (i - fy < 0)  ii = 0;
+					if (i - fy >= y) ii = y - 1;
+
+					if (j - fx < 0)  jj = 0;
+					if (j - fx >= x) jj = x - 1;
+
+					if (ii < 0) ii = 0;
+					if (jj < 0) jj = 0;
+
+					pos = i*Rx + j;
+					RimgI->data[pos] = img->data[ii * x + jj];
+				}
+			}
+		}
+
+		//‰ñ“]‚³‚¹‚é‚½‚ß‚Ì•¡»
+		Rgb* data = new Rgb[Rx*Ry];
+		memcpy(data, RimgI->data, sizeof(Rgb)*Rx*Ry);
+
+		centerX = Rx / 2.0;
+		centerY = Ry / 2.0;
+		for (int i = 0; i < Ry; i++)
+		{
+			for (int j = 0; j < Rx; j++)
+			{
+				int pos = i*Rx + j;
 				
 				int pointX = (int)((j - centerX) * cosRadian - (i - centerY) * sinRadian + centerX);
 				int pointY = (int)((j - centerX) * sinRadian + (i - centerY) * cosRadian + centerY);
 
 				// poiuntX, pointY‚ª“ü—Í‰æ‘œ‚Ì—LŒø”ÍˆÍ‚É‚ ‚ê‚Îo—Í‰æ‘œ‚Ö‘ã“ü‚·‚é
-				if (pointX >= 0 && pointX < x && pointY >= 0 && pointY < y) {
-					img->data[pos] = data[pointY * x + pointX];
+				if (pointX >= 0 && pointX < Rx && pointY >= 0 && pointY < Ry) {
+					RimgI->data[pos] = data[pointY * Rx + pointX];
 				}
 				else {
-					img->data[pos] = Rgb(0,0,0);
+					RimgI->data[pos] = Rgb(0,0,0);
+				}
+			}
+		}
+
+		//Œ³‚ÌƒTƒCƒY‚ÅØ‚èo‚µ
+		for (int i = 0; i < Ry; i++)
+		{
+			for (int j = 0; j < Rx; j++)
+			{
+				int pos = i*Rx + j;
+				if (i - fy >= 0 && i - fy < y && j - fx >= 0 && j - fx < x)
+				{
+					img->data[(i - fy) * x + (j - fx)] = RimgI->data[pos];
 				}
 			}
 		}
 		delete[] data;
+		delete RimgI;
 	}
 
 	void rotation(double* data, int x, int y, const double rad)
@@ -847,7 +910,7 @@ std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* d
 		for (int i = 0; i < 3 * x*y; i++) data2[i] = data[i];
 
 		img_rotation rot;
-		rot.rotation(&data2[0], x, y, (aug.rnd() < 0.5 ? 1.0 : -1.0)*(aug.rnd()*aug.rotation_max+0.5)*M_PI / 180.0);
+		rot.rotation(&data2[0], x, y, (aug.rnd() < 0.5 ? 1.0 : -1.0)*(std::max(0.1,aug.rnd())*aug.rotation_max+0.5)*M_PI / 180.0);
 
 		image_augmentat.push_back(data2);
 	}
@@ -863,22 +926,22 @@ std::vector<std::vector<unsigned char>> ImageAugmentation(const unsigned char* d
 		{
 			if (aug.rnd() < 0.5)
 			{
-				s.sift(&data2[0], x, y, 1, (int)(aug.rnd()*aug.sift_max + 0.5));
+				s.sift(&data2[0], x, y, 1, (int)(std::max(0.1,aug.rnd())*aug.sift_max + 0.5));
 			}
 			else
 			{
-				s.sift(&data2[0], x, y, -1, (int)(aug.rnd()*aug.sift_max + 0.5));
+				s.sift(&data2[0], x, y, -1, (int)(std::max(0.1, aug.rnd())*aug.sift_max + 0.5));
 			}
 		}
 		else
 		{
 			if (aug.rnd() < 0.5)
 			{
-				s.sift(&data2[0], x, y, 2, (int)(aug.rnd()*aug.sift_max + 0.5));
+				s.sift(&data2[0], x, y, 2, (int)(std::max(0.1, aug.rnd())*aug.sift_max + 0.5));
 			}
 			else
 			{
-				s.sift(&data2[0], x, y, -2, (int)(aug.rnd()*aug.sift_max + 0.5));
+				s.sift(&data2[0], x, y, -2, (int)(std::max(0.1, aug.rnd())*aug.sift_max + 0.5));
 			}
 		}
 

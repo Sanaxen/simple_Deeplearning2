@@ -220,6 +220,74 @@ typedef void(WINAPI *dn_set_loss_Numerical_differentiation)(void* net_p, int fla
 typedef void(WINAPI *dn_set_Loss_user_function)(void* net_p, loss_function_t fnc);
 
 	
+/*
+	Does cache data exist?
+	net_p = Pointer to neural network object
+*/
+typedef int(WINAPI *dn_is_Cached_data_exists)(void* net_p);
+
+/*
+	Save the input learning data in the cache
+	net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_create_cach_X)(void* net_p, int number, std::vector<std::vector<double>>& x);
+
+/*
+	Save the output learning data in the cache
+	net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_create_cach_Y)(void* net_p, int number, std::vector<std::vector<double>>& x);
+
+/*
+	Save the input test data in the cache
+	net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_create_cach_testX)(void* net_p, int number, std::vector<std::vector<double>>& x);
+
+/*
+	Save the output test data in the cache
+	net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_create_cach_testY)(void* net_p, int number, std::vector<std::vector<double>>& x);
+
+/*
+	End of cache generation
+	net_p = Pointer to neural network object
+	X.size() == 0 ( and Y.size() == 0 ) --> The data is in the cache file and is not on the memory 
+*/
+typedef void(WINAPI *dn_create_cach_end)(void* net_p, tensor& X, tensor& Y);
+
+/*
+	Setting of total learning data number
+	net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_setDataNum)(void* net_p, int data_num);
+
+/*
+	Setting of total test data number
+	net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_setTestDataNum)(void* net_p, int data_num);
+
+/*
+	Reading the number of cached learning & test data
+	net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_loadCachDataNum)(void* net_p);
+
+/*
+	Acquisition of the number of learning data
+	net_p = Pointer to neural network object
+*/
+typedef int(WINAPI *dn_getCachDataNum)(void* net_p);
+
+/*
+	Acquisition of the number of test data
+	net_p = Pointer to neural network object
+*/
+typedef int(WINAPI *dn_getCachTestDataNum)(void* net_p);
+
+	
 #define DNN_DEF_FUNC(f)	dn_ ## f f ## _dn = NULL;
 #define DNN_FUNC(f)	f ## _dn = (dn_ ## f)GetProcAddress(__hModule, # f);if ( f ## _dn == NULL ) printf("load %s error.\n", #f);
 
@@ -244,6 +312,18 @@ DNN_DEF_FUNC(set_test_data);
 DNN_DEF_FUNC(adjustment_learning_rate);
 DNN_DEF_FUNC(set_loss_Numerical_differentiation);
 DNN_DEF_FUNC(set_Loss_user_function);
+
+DNN_DEF_FUNC(is_Cached_data_exists);
+DNN_DEF_FUNC(create_cach_X);
+DNN_DEF_FUNC(create_cach_Y);
+DNN_DEF_FUNC(create_cach_testX);
+DNN_DEF_FUNC(create_cach_testY);
+DNN_DEF_FUNC(create_cach_end);
+DNN_DEF_FUNC(setDataNum);
+DNN_DEF_FUNC(setTestDataNum);
+DNN_DEF_FUNC(loadCachDataNum);
+DNN_DEF_FUNC(getCachDataNum);
+DNN_DEF_FUNC(getCachTestDataNum);
 
 inline int simple_dnn_init(const char* this_dll)
 {
@@ -283,6 +363,19 @@ inline int simple_dnn_init(const char* this_dll)
   DNN_FUNC(adjustment_learning_rate);
   DNN_FUNC(set_loss_Numerical_differentiation);
   DNN_FUNC(set_Loss_user_function);
+	
+	DNN_FUNC(is_Cached_data_exists);
+	DNN_FUNC(create_cach_X);
+	DNN_FUNC(create_cach_Y);
+	DNN_FUNC(create_cach_testX);
+	DNN_FUNC(create_cach_testY);
+	DNN_FUNC(create_cach_end);
+	DNN_FUNC(setDataNum);
+	DNN_FUNC(setTestDataNum);
+	DNN_FUNC(loadCachDataNum);
+	DNN_FUNC(getCachDataNum);
+	DNN_FUNC(getCachTestDataNum);
+	
   return 0;
 }
 inline void simple_dnn_term()
