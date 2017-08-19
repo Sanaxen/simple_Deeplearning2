@@ -1,6 +1,8 @@
 #
-Simple Software Development Kit(SDK) for easy trial of Deeplearning  
+**Simple Software Development Kit(SDK) for easy trial of Deeplearning**  
 For personal use
+
+C++ only!!  **Visual Studio 2012** 
 
 ## What's New
 - 2017/8/13 96% accuracy on MNIST in 6 minutes training (@Core i7-2820QM CPU 2.3GHz)(Second or later after cache creation).
