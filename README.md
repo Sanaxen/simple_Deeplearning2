@@ -5,7 +5,8 @@ For personal use
 C++ only!!  **Visual Studio 2012** 
 
 ## What's New
-- 2017/8/20 kaggle digit-recognizer 0.99686%(Top 6%)<img src="https://github.com/Sanaxen/simple_Deeplearning2/blob/master/image/kaggle_mnist.png"/>  
+- 2017/8/20 kaggle digit-recognizer 0.99686%(Top 6%)
+          <img src="https://github.com/Sanaxen/simple_Deeplearning2/blob/master/image/kaggle_mnist.png"/>  
 - 2017/8/13 96% accuracy on MNIST in 6 minutes training (@Core i7-2820QM CPU 2.3GHz)(Second or later after cache creation).
 - 2017/8/12 out of core (Large-scale learning data)  
 - 2017/8/07 CIFAR10 **76%**  
