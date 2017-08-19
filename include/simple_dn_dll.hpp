@@ -40,7 +40,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #include <random>
 #include <numeric>
 
-typedef std::vector<std::vector<std::vector<double>>> tensor;
+#ifdef USE_FLOAT
+typedef float dnn_double;
+#else
+typedef double dnn_double;
+#endif
+
+typedef std::vector<std::vector<std::vector<dnn_double>>> tensor;
 
 #ifdef __cplusplus
 extern "C"
@@ -48,7 +54,7 @@ extern "C"
 #endif
 
 typedef void* tensor_p;
-typedef double(*loss_function_t)(double* mat1, int m1, int n1, double* mat2, int m2, int n2);
+typedef double(*loss_function_t)(dnn_double* mat1, int m1, int n1, dnn_double* mat2, int m2, int n2);
 
 /*
 	Generation of neural network
@@ -230,25 +236,25 @@ typedef int(WINAPI *dn_is_Cached_data_exists)(void* net_p);
 	Save the input learning data in the cache
 	net_p = Pointer to neural network object
 */
-typedef void(WINAPI *dn_create_cach_X)(void* net_p, int number, std::vector<std::vector<double>>& x);
+typedef void(WINAPI *dn_create_cach_X)(void* net_p, int number, std::vector<std::vector<dnn_double>>& x);
 
 /*
 	Save the output learning data in the cache
 	net_p = Pointer to neural network object
 */
-typedef void(WINAPI *dn_create_cach_Y)(void* net_p, int number, std::vector<std::vector<double>>& x);
+typedef void(WINAPI *dn_create_cach_Y)(void* net_p, int number, std::vector<std::vector<dnn_double>>& x);
 
 /*
 	Save the input test data in the cache
 	net_p = Pointer to neural network object
 */
-typedef void(WINAPI *dn_create_cach_testX)(void* net_p, int number, std::vector<std::vector<double>>& x);
+typedef void(WINAPI *dn_create_cach_testX)(void* net_p, int number, std::vector<std::vector<dnn_double>>& x);
 
 /*
 	Save the output test data in the cache
 	net_p = Pointer to neural network object
 */
-typedef void(WINAPI *dn_create_cach_testY)(void* net_p, int number, std::vector<std::vector<double>>& x);
+typedef void(WINAPI *dn_create_cach_testY)(void* net_p, int number, std::vector<std::vector<dnn_double>>& x);
 
 /*
 	End of cache generation
@@ -269,6 +275,26 @@ typedef void(WINAPI *dn_setDataNum)(void* net_p, int data_num);
 */
 typedef void(WINAPI *dn_setTestDataNum)(void* net_p, int data_num);
 
+
+/*
+	Forcibly set the number
+	Do not use it for purposes other than limiting the amount of data.
+
+	Setting of total learning data number
+	net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_setDataNumEx)(void* net_p, int data_num);
+
+/*
+	Forcibly set the number
+	Do not use it for purposes other than limiting the amount of data.
+
+	Setting of total learning data number
+	net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_setTestDataNumEx)(void* net_p, int data_num);
+
+
 /*
 	Reading the number of cached learning & test data
 	net_p = Pointer to neural network object
@@ -287,7 +313,21 @@ typedef int(WINAPI *dn_getCachDataNum)(void* net_p);
 */
 typedef int(WINAPI *dn_getCachTestDataNum)(void* net_p);
 
-	
+
+/*
+	Read all cached training data
+	net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_read_cach_data)(void* net_p, tensor& X, tensor& Y);
+
+/*
+	Read all cached test data
+	net_p = Pointer to neural network object
+*/
+typedef void(WINAPI *dn_read_cach_test_data)(void* net_p, tensor& X, tensor& Y);
+
+
+
 #define DNN_DEF_FUNC(f)	dn_ ## f f ## _dn = NULL;
 #define DNN_FUNC(f)	f ## _dn = (dn_ ## f)GetProcAddress(__hModule, # f);if ( f ## _dn == NULL ) printf("load %s error.\n", #f);
 
@@ -321,9 +361,14 @@ DNN_DEF_FUNC(create_cach_testY);
 DNN_DEF_FUNC(create_cach_end);
 DNN_DEF_FUNC(setDataNum);
 DNN_DEF_FUNC(setTestDataNum);
+DNN_DEF_FUNC(setDataNumEx);
+DNN_DEF_FUNC(setTestDataNumEx);
 DNN_DEF_FUNC(loadCachDataNum);
 DNN_DEF_FUNC(getCachDataNum);
 DNN_DEF_FUNC(getCachTestDataNum);
+DNN_DEF_FUNC(read_cach_data);
+DNN_DEF_FUNC(read_cach_test_data);
+
 
 inline int simple_dnn_init(const char* this_dll)
 {
@@ -372,9 +417,13 @@ inline int simple_dnn_init(const char* this_dll)
 	DNN_FUNC(create_cach_end);
 	DNN_FUNC(setDataNum);
 	DNN_FUNC(setTestDataNum);
+	DNN_FUNC(setDataNumEx);
+	DNN_FUNC(setTestDataNumEx);
 	DNN_FUNC(loadCachDataNum);
 	DNN_FUNC(getCachDataNum);
 	DNN_FUNC(getCachTestDataNum);
+	DNN_FUNC(read_cach_data);
+	DNN_FUNC(read_cach_test_data);
 	
   return 0;
 }

@@ -199,13 +199,13 @@ inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label, tens
 
 			Image* img = readImage(file);
 
-			vector<vector<double>> tmp(1, vector<double>(img->height*img->width));
-			vector<vector<double>> tmp_lb(1, vector<double>(10, 0));
+			vector<vector<dnn_double>> tmp(1, vector<dnn_double>(img->height*img->width));
+			vector<vector<dnn_double>> tmp_lb(1, vector<dnn_double>(10, 0));
 
 			if ( Normalization )
 			{
 				int sz = img->height*img->width;
-				double* whitening_img = image_whitening<double>(img);
+				dnn_double* whitening_img = image_whitening<dnn_double>(img);
 #pragma omp parallel for
 				for (int k = 0; k < sz; k++)
 				{
@@ -218,7 +218,7 @@ inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label, tens
 #pragma omp parallel for
 				for (int k = 0; k < sz; k++)
 				{
-					tmp[0][k] = (double)img->data[k].r/255.0;
+					tmp[0][k] = (dnn_double)img->data[k].r/255.0;
 				}
 			}
 
@@ -248,13 +248,13 @@ inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label, tens
 
 			Image* img = readImage(file);
 
-			vector<vector<double>> tmp(1, vector<double>(img->height*img->width));
-			vector<vector<double>> tmp_lb(1, vector<double>(10, 0));
+			vector<vector<dnn_double>> tmp(1, vector<dnn_double>(img->height*img->width));
+			vector<vector<dnn_double>> tmp_lb(1, vector<dnn_double>(10, 0));
 
 			if (Normalization)
 			{
 				int sz = img->height*img->width;
-				double* whitening_img = image_whitening<double>(img);
+				dnn_double* whitening_img = image_whitening<dnn_double>(img);
 #pragma omp parallel for
 				for (int k = 0; k < sz; k++)
 				{
@@ -268,7 +268,7 @@ inline int image_to_tensor(std::string& dataDir, tensor& im, tensor& label, tens
 #pragma omp parallel for
 				for (int k = 0; k < sz; k++)
 				{
-					tmp[0][k] = (double)img->data[k].r / 255.0;
+					tmp[0][k] = (dnn_double)img->data[k].r / 255.0;
 				}
 			}
 
@@ -299,7 +299,7 @@ inline int get_image_and_label( char* imageFile, tensor& image)
 	if ( img == NULL ) return -1;
 
 	int sz = img->height*img->width;
-	double* whitening_img = image_whitening<double>(img);
+	dnn_double* whitening_img = image_whitening<dnn_double>(img);
 #pragma omp parallel for
 	for (int k = 0; k < sz; k++)
 	{

@@ -1,3 +1,4 @@
+//#define USE_FLOAT
 //#define USE_GPU	10
 //#include "../include/gpu/cpp_amp.hpp"
 #define NOMINMAX
@@ -12,8 +13,12 @@
 
 int main(int argc, char** argv)
 {
+#ifndef  USE_FLOAT
 	//simple ディープラーニング
 	simple_dnn_init("simple_dnn.dll");
+#else
+	simple_dnn_init("simple_dnn_f.dll");
+#endif
 
 	FileExitsCheck filechk;
 

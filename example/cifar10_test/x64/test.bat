@@ -1,1 +1,3 @@
-.\Release\cifar10_test.exe ..\..\..\dataset\cifar10 %1
+copy ..\..\..\bin\*.dll .\\Release
+
+.\Release\mnist_test3.exe ..\..\..\dataset\mnist %1
