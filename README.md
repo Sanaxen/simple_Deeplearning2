@@ -4,6 +4,10 @@ For personal use
 
 C++ only!!  **Visual Studio 2012** 
 
+MKL version  
+-  Use Intel® Math Kernel Library  
+
+
 ## What's New
 - 2017/8/27 CIFAR10 **81%**  
 - 2017/8/20 kaggle digit-recognizer 0.99686%(Top 6%)
@@ -16,6 +20,10 @@ C++ only!!  **Visual Studio 2012**
 - 2017/6/02 Add Automatic augmentation image data API  
 - 2017/5/30 Optimizer SGD  
 - 2017/5/24 Optimizer AdaGrad,RMSProp,AdaDelta  
+
+-------------------------------------------
+Intel® Math Kernel Library  
+- Copyright (c) 2017 Intel Corporation  
 
 -------------------------------------------
 note  
