@@ -1,0 +1,44 @@
+@ECHO OFF
+REM 結合バッチファイル：div2.exe により生成
+
+ECHO 分割されたファイルを復元します
+
+IF NOT EXIST "CIFAR1~1.001"  GOTO ERR1
+IF NOT EXIST "CIFAR1~1.002"  GOTO ERR1
+IF NOT EXIST "CIFAR1~1.003"  GOTO ERR1
+IF     EXIST "cifar10.model"  GOTO ERR2
+
+COPY "CIFAR1~1.001" "CIFAR1~1.MOD"
+IF ERRORLEVEL 1 GOTO ERR3
+COPY /B "CIFAR1~1.MOD"+"CIFAR1~1.002"+"CIFAR1~1.003"
+IF ERRORLEVEL 1 GOTO ERR3
+
+DEL "CIFAR1~1.001"
+DEL "CIFAR1~1.002"
+DEL "CIFAR1~1.003"
+
+
+REN "CIFAR1~1.MOD" "cifar10.model"
+
+ECHO このバッチファイルも消してください
+GOTO END
+
+:ERR1
+ECHO ファイルが一部存在しません
+ECHO 処理を中止します
+GOTO END
+
+:ERR2
+ECHO 復元先のファイルが既に存在しています
+ECHO 処理を中止します
+GOTO END
+
+:ERR3
+ECHO 復元に失敗しました
+ECHO 処理を中止します
+GOTO END
+
+:END
+ECHO 終了するには、何かキーを押してください
+PAUSE >NUL
+
